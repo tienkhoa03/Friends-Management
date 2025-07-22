@@ -1,0 +1,118 @@
+definitions:
+  dto.ApiResponseSuccessStruct:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        example: "null"
+        type: string
+      message:
+        example: Success
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/users:
+    get:
+      consumes:
+      - application/json
+      description: Get all user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Get all user
+      tags:
+      - Users
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create new user
+      parameters:
+      - description: User Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Create new user
+      tags:
+      - Users
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Delete user
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Get user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Get user by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User's New Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Update user
+      tags:
+      - Users
+swagger: "2.0"

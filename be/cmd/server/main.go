@@ -3,16 +3,39 @@ package main
 import (
 	"log"
 
+	"BE_Friends_Management/api/handler"
+	api "BE_Friends_Management/api/router"
+	"BE_Friends_Management/config"
+	"BE_Friends_Management/internal/repository"
+	"BE_Friends_Management/internal/service"
+
+	"BE_Friends_Management/cmd/server/docs"
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
+	config.LoadEnv()
+	db := config.ConnectToDB()
+	repos := repository.NewRepository(db)
+
+	services := service.NewService(repos)
+	userHandler := handler.NewUserHandler(services.User)
+	docs.SwaggerInfo.Title = "API Friends Management"
+	docs.SwaggerInfo.Description = "API Friends Management"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = config.BASE_URL_BACKEND_FOR_SWAGGER
+	docs.SwaggerInfo.BasePath = ""
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	r := gin.Default()
+	// pprof.Register(r)
+	api.SetupRoutes(r, userHandler, db)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
-	})
-
-	log.Println("Server running at http://localhost:8080")
-	r.Run(":8080")
+	if err := r.Run(config.Port); err != nil {
+		log.Fatal("failed to run server:", err)
+	}
 }
