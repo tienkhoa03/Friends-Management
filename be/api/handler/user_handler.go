@@ -30,7 +30,7 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 func (h *UserHandler) GetAllUser(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	users := h.service.GetAllUser()
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(http.StatusOK, constant.Success, users))
+	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, users))
 }
 
 // User godoc
@@ -55,7 +55,7 @@ func (h *UserHandler) GetUserById(c *gin.Context) {
 		log.Error("Happened error when getting the user by ID. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when getting the user by ID")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(http.StatusOK, constant.Success, user))
+	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, user))
 }
 
 // User godoc
@@ -75,7 +75,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		log.Error("Happened error when creating new user. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when creating new user")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(http.StatusOK, constant.Success, newUser))
+	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, newUser))
 }
 
 // User godoc
@@ -100,7 +100,7 @@ func (h *UserHandler) DeleteUserById(c *gin.Context) {
 		log.Error("Happened error when deleting a user. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when deleting a user")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessNoData(http.StatusOK, constant.Success))
+	c.JSON(http.StatusOK, pkg.BuildReponseSuccessNoData())
 }
 
 // User godoc
@@ -128,5 +128,5 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		log.Error("Happened error when updating user. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when updating a user")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(http.StatusOK, constant.Success, updatedUser))
+	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, updatedUser))
 }
