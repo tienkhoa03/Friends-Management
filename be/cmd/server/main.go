@@ -22,7 +22,7 @@ func main() {
 	repos := repository.NewRepository(db)
 
 	services := service.NewService(repos)
-	userHandler := handler.NewUserHandler(services.User)
+	handlers := handler.NewHandlers(services)
 	docs.SwaggerInfo.Title = "API Friends Management"
 	docs.SwaggerInfo.Description = "API Friends Management"
 	docs.SwaggerInfo.Version = "1.0"
@@ -31,8 +31,7 @@ func main() {
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	r := gin.Default()
-	// pprof.Register(r)
-	api.SetupRoutes(r, userHandler, db)
+	api.SetupRoutes(r, handlers, db)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(config.Port); err != nil {

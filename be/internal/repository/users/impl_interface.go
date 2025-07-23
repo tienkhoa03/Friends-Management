@@ -62,5 +62,4 @@ func (r *PostgreSQLUserRepository) UpdateUser(user *entity.User) (*entity.User, 
 		return nil, result.Error
 	}
 	return &updatedUser, nil
-
 }

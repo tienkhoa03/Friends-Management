@@ -1,9 +1,11 @@
 definitions:
+  dto.ApiResponseSuccessNoData:
+    properties:
+      success:
+        type: boolean
+    type: object
   dto.ApiResponseSuccessStruct:
     properties:
-      code:
-        example: 200
-        type: integer
       data:
         example: "null"
         type: string
@@ -11,9 +13,40 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.CreateFriendshipRequest:
+    properties:
+      friends:
+        items:
+          type: string
+        type: array
+    required:
+    - friends
+    type: object
 info:
   contact: {}
 paths:
+  /api/friendship:
+    post:
+      consumes:
+      - application/json
+      description: Create new friendship
+      parameters:
+      - description: List of 2 friend emails
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateFriendshipRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      summary: Create new friendship
+      tags:
+      - Friendship
   /api/users:
     get:
       consumes:

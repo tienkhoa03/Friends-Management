@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/friendship": {
+            "post": {
+                "description": "Create new friendship",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Friendship"
+                ],
+                "summary": "Create new friendship",
+                "parameters": [
+                    {
+                        "description": "List of 2 friend emails",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateFriendshipRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
                 "description": "Get all user",
@@ -169,13 +203,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.ApiResponseSuccessNoData": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.ApiResponseSuccessStruct": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 200
-                },
                 "data": {
                     "type": "string",
                     "example": "null"
@@ -183,6 +221,20 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Success"
+                }
+            }
+        },
+        "dto.CreateFriendshipRequest": {
+            "type": "object",
+            "required": [
+                "friends"
+            ],
+            "properties": {
+                "friends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }
