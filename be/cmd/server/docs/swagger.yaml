@@ -13,6 +13,17 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.ApiResponseSuccessWithFriendsList:
+    properties:
+      count:
+        type: integer
+      friends:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+    type: object
   dto.CreateFriendshipRequest:
     properties:
       friends:
@@ -45,6 +56,53 @@ paths:
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessNoData'
       summary: Create new friendship
+      tags:
+      - Friendship
+  /api/friendship/common-friends:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve common friends list between two email addresses
+      parameters:
+      - description: Email address of user 1
+        in: query
+        name: email1
+        required: true
+        type: string
+      - description: Email address of user 2
+        in: query
+        name: email2
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessWithFriendsList'
+      summary: Retrieve common friends list between two email addresses
+      tags:
+      - Friendship
+  /api/friendship/friends:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve friends list for an email address
+      parameters:
+      - description: Email address
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessWithFriendsList'
+      summary: Retrieve friends list for an email address
       tags:
       - Friendship
   /api/users:

@@ -23,3 +23,9 @@ type ApiResponseSuccessStruct struct {
 	Message string  `json:"message" example:"Success"`
 	Data    *string `json:"data" example:"null"`
 }
+
+type ApiResponseSuccessWithFriendsList struct {
+	Success bool     `json:"success"`
+	Friends []string `json:"friends"`
+	Count   int64    `json:"count"`
+}

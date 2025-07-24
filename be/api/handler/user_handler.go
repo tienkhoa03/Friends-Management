@@ -116,7 +116,6 @@ func (h *UserHandler) DeleteUserById(c *gin.Context) {
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	userIdStr := c.Param("id")
-
 	email := c.PostForm("email")
 	userId, err := strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
