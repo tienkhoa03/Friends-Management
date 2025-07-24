@@ -39,3 +39,11 @@ func BuildReponseFail(message string) dto.ApiResponseFail {
 		Msg:     message,
 	}
 }
+
+func BuildReponseSuccessWithFriendsList(friends []string, count int64) dto.ApiResponseSuccessWithFriendsList {
+	return dto.ApiResponseSuccessWithFriendsList{
+		Success: true,
+		Friends: friends,
+		Count:   count,
+	}
+}

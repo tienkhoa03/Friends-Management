@@ -49,6 +49,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/friendship/friends": {
+            "get": {
+                "description": "Retrieve friends list for an email address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Friendship"
+                ],
+                "summary": "Retrieve friends list for an email address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email address",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessWithFriendsList"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
                 "description": "Get all user",
@@ -221,6 +253,23 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Success"
+                }
+            }
+        },
+        "dto.ApiResponseSuccessWithFriendsList": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "friends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         },
