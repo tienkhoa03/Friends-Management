@@ -9,19 +9,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type FriendshipService struct {
+//go:generate mockgen -source=service.go -destination=../mock/mock_friendship_service.go
+
+type FriendshipService interface {
+	CreateFriendship(email1, email2 string) error
+}
+
+type friendshipService struct {
 	repo     friendship.FriendshipRepository
 	userRepo user.UserRepository
 }
 
-func NewFriendshipService(repo friendship.FriendshipRepository, userRepo user.UserRepository) *FriendshipService {
-	return &FriendshipService{
+func NewFriendshipService(repo friendship.FriendshipRepository, userRepo user.UserRepository) FriendshipService {
+	return &friendshipService{
 		repo:     repo,
 		userRepo: userRepo,
 	}
 }
 
-func (service *FriendshipService) CreateFriendship(email1, email2 string) error {
+func (service *friendshipService) CreateFriendship(email1, email2 string) error {
 	user1, err := service.userRepo.GetUserByEmail(email1)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
@@ -39,7 +45,11 @@ func (service *FriendshipService) CreateFriendship(email1, email2 string) error 
 	if user1.Id == user2.Id {
 		return ErrInvalidRequest
 	}
-	err = service.repo.CreateFriendship(user1.Id, user2.Id)
+	if user1.Id < user2.Id {
+		err = service.repo.CreateFriendship(user1.Id, user2.Id)
+	} else {
+		err = service.repo.CreateFriendship(user2.Id, user1.Id)
+	}
 	if err != nil && strings.Contains(err.Error(), "duplicate key") {
 		return ErrAlreadyFriend
 	}

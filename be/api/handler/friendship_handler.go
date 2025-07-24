@@ -12,10 +12,10 @@ import (
 )
 
 type FriendshipHandler struct {
-	service *service.FriendshipService
+	service service.FriendshipService
 }
 
-func NewFriendshipHandler(service *service.FriendshipService) *FriendshipHandler {
+func NewFriendshipHandler(service service.FriendshipService) *FriendshipHandler {
 	return &FriendshipHandler{service: service}
 }
 
