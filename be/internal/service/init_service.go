@@ -7,8 +7,8 @@ import (
 )
 
 type Service struct {
-	User       *user.UserService
-	Friendship *friendship.FriendshipService
+	User       user.UserService
+	Friendship friendship.FriendshipService
 }
 
 func NewService(repos *repository.Repository) *Service {
