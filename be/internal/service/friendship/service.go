@@ -15,6 +15,7 @@ import (
 type FriendshipService interface {
 	CreateFriendship(email1, email2 string) error
 	RetrieveFriendsList(email string) ([]*entity.User, error)
+	RetrieveCommonFriends(email1, email2 string) ([]*entity.User, error)
 	CountFriends(friendsList []*entity.User) int64
 }
 
@@ -80,6 +81,55 @@ func (service *friendshipService) RetrieveFriendsList(email string) ([]*entity.U
 		friends[i] = friend
 	}
 	return friends, nil
+}
+
+func (service *friendshipService) RetrieveCommonFriends(email1, email2 string) ([]*entity.User, error) {
+	user1, err := service.userRepo.GetUserByEmail(email1)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	user2, err := service.userRepo.GetUserByEmail(email2)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	if user1.Id == user2.Id {
+		return nil, ErrInvalidRequest
+	}
+	friendIdsOfUser1, err := service.repo.RetrieveFriendsList(user1.Id)
+	if err != nil {
+		return nil, err
+	}
+	friendIdsOfUser2, err := service.repo.RetrieveFriendsList(user2.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	set := make(map[int64]bool)
+	commonFriendIds := []int64{}
+	for _, id1 := range friendIdsOfUser1 {
+		set[id1] = true
+	}
+	for _, id2 := range friendIdsOfUser2 {
+		if set[id2] {
+			commonFriendIds = append(commonFriendIds, id2)
+		}
+	}
+
+	commonFriends := make([]*entity.User, len(commonFriendIds))
+	for i, id := range commonFriendIds {
+		commenFriend, err := service.userRepo.GetUserById(id)
+		if err != nil {
+			return nil, err
+		}
+		commonFriends[i] = commenFriend
+	}
+	return commonFriends, nil
 }
 
 func (service *friendshipService) CountFriends(friends []*entity.User) int64 {

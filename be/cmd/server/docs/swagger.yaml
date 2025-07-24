@@ -58,6 +58,32 @@ paths:
       summary: Create new friendship
       tags:
       - Friendship
+  /api/friendship/common-friends:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve common friends list between two email addresses
+      parameters:
+      - description: Email address of user 1
+        in: query
+        name: email1
+        required: true
+        type: string
+      - description: Email address of user 2
+        in: query
+        name: email2
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessWithFriendsList'
+      summary: Retrieve common friends list between two email addresses
+      tags:
+      - Friendship
   /api/friendship/friends:
     get:
       consumes:

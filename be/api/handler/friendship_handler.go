@@ -33,7 +33,7 @@ func (h *FriendshipHandler) CreateFriendship(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	var request dto.CreateFriendshipRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		log.Error("Happened error when mapping request from FE. Error: ", err)
+		log.Error("Happened error when mapping request. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 	}
 	err := h.service.CreateFriendship(request.Friends[0], request.Friends[1])
@@ -66,7 +66,7 @@ func (h *FriendshipHandler) RetrieveFriendsList(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	requestEmail := c.Query("email")
 	if requestEmail == "" {
-		log.Error("Happened error when mapping request from FE. Error: received no email input.")
+		log.Error("Happened error when mapping request. Error: received no email input.")
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 		return
 	}
@@ -78,6 +78,47 @@ func (h *FriendshipHandler) RetrieveFriendsList(c *gin.Context) {
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when retrieving friends list.")
+		}
+	}
+	emails := utils.ConvertUsersToEmails(friends)
+	count := h.service.CountFriends(friends)
+	c.JSON(http.StatusOK, pkg.BuildReponseSuccessWithFriendsList(emails, count))
+}
+
+// User godoc
+// @Summary      Retrieve common friends list between two email addresses
+// @Description  Retrieve common friends list between two email addresses
+// @Tags         Friendship
+// @Accept 		json
+// @Produce      json
+// @Param 		 email1 query string true "Email address of user 1"
+// @Param 		 email2 query string true "Email address of user 2"
+// @Router       /api/friendship/common-friends [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessWithFriendsList
+func (h *FriendshipHandler) RetrieveCommonFriends(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	requestEmail1 := c.Query("email1")
+	if requestEmail1 == "" {
+		log.Error("Happened error when mapping request. Error: received no email input.")
+		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
+		return
+	}
+	requestEmail2 := c.Query("email2")
+	if requestEmail2 == "" {
+		log.Error("Happened error when mapping request. Error: received no email input.")
+		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
+		return
+	}
+	friends, err := h.service.RetrieveCommonFriends(requestEmail1, requestEmail2)
+	if err != nil {
+		log.Error("Happened error when retrieving common friends list. Error: ", err)
+		switch err {
+		case service.ErrInvalidRequest:
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
+		case service.ErrUserNotFound:
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when retrieving common friends list.")
 		}
 	}
 	emails := utils.ConvertUsersToEmails(friends)

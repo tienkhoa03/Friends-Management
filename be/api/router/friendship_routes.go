@@ -10,4 +10,5 @@ import (
 func registerFriendshipRoutes(api *gin.RouterGroup, h *handler.FriendshipHandler, db *gorm.DB) {
 	api.POST("/friendship", h.CreateFriendship)
 	api.GET("/friendship/friends", h.RetrieveFriendsList)
+	api.GET("/friendship/common-friends", h.RetrieveCommonFriends)
 }
