@@ -62,6 +62,21 @@ func (mr *MockFriendshipServiceMockRecorder) CreateFriendship(email1, email2 int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFriendship", reflect.TypeOf((*MockFriendshipService)(nil).CreateFriendship), email1, email2)
 }
 
+// RetrieveCommonFriends mocks base method.
+func (m *MockFriendshipService) RetrieveCommonFriends(email1, email2 string) ([]*entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RetrieveCommonFriends", email1, email2)
+	ret0, _ := ret[0].([]*entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RetrieveCommonFriends indicates an expected call of RetrieveCommonFriends.
+func (mr *MockFriendshipServiceMockRecorder) RetrieveCommonFriends(email1, email2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RetrieveCommonFriends", reflect.TypeOf((*MockFriendshipService)(nil).RetrieveCommonFriends), email1, email2)
+}
+
 // RetrieveFriendsList mocks base method.
 func (m *MockFriendshipService) RetrieveFriendsList(email string) ([]*entity.User, error) {
 	m.ctrl.T.Helper()
