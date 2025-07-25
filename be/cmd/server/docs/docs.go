@@ -120,6 +120,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/subscription": {
+            "post": {
+                "description": "Create new subscription",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subscription"
+                ],
+                "summary": "Create new subscription",
+                "parameters": [
+                    {
+                        "description": "Requestor's email and target's email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
                 "description": "Get all user",
@@ -323,6 +357,21 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.CreateSubscriptionRequest": {
+            "type": "object",
+            "required": [
+                "requestor",
+                "target"
+            ],
+            "properties": {
+                "requestor": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
                 }
             }
         }

@@ -1,0 +1,53 @@
+package handler
+
+import (
+	"BE_Friends_Management/constant"
+	"BE_Friends_Management/internal/domain/dto"
+	service "BE_Friends_Management/internal/service/subscription"
+	"BE_Friends_Management/pkg"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
+)
+
+type SubscriptionHandler struct {
+	service service.SubscriptionService
+}
+
+func NewSubscriptionHandler(service service.SubscriptionService) *SubscriptionHandler {
+	return &SubscriptionHandler{service: service}
+}
+
+// User godoc
+// @Summary      Create new subscription
+// @Description  Create new subscription
+// @Tags         Subscription
+// @Accept 		json
+// @Produce      json
+// @Param 		 request body dto.CreateSubscriptionRequest true "Requestor's email and target's email"
+// @Router       /api/subscription [POST]
+// @Success      200   {object}  dto.ApiResponseSuccessNoData
+func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	var request dto.CreateSubscriptionRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Error("Happened error when mapping request. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
+	}
+	err := h.service.CreateSubscription(request.Requestor, request.Target)
+	if err != nil {
+		log.Error("Happened error when creating new subscription. Error: ", err)
+		switch err {
+		case service.ErrInvalidRequest:
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
+		case service.ErrUserNotFound:
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		case service.ErrAlreadySubscribed:
+			pkg.PanicExeption(constant.Conflict, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new subscription.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildReponseSuccessNoData())
+}

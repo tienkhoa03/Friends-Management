@@ -33,6 +33,16 @@ definitions:
     required:
     - friends
     type: object
+  dto.CreateSubscriptionRequest:
+    properties:
+      requestor:
+        type: string
+      target:
+        type: string
+    required:
+    - requestor
+    - target
+    type: object
 info:
   contact: {}
 paths:
@@ -105,6 +115,28 @@ paths:
       summary: Retrieve friends list for an email address
       tags:
       - Friendship
+  /api/subscription:
+    post:
+      consumes:
+      - application/json
+      description: Create new subscription
+      parameters:
+      - description: Requestor's email and target's email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      summary: Create new subscription
+      tags:
+      - Subscription
   /api/users:
     get:
       consumes:
