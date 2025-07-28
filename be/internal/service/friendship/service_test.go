@@ -12,107 +12,206 @@ import (
 	mock "BE_Friends_Management/internal/repository/mock"
 )
 
-func TestCreateFriendship(t *testing.T) {
+func TestSubscriptionService_CreateFriendship(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockFriendshipRepo := mock.NewMockFriendshipRepository(ctrl)
 	mockUserRepo := mock.NewMockUserRepository(ctrl)
-	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo)
+	mockBlockRepo := mock.NewMockBlockRelationshipRepository(ctrl)
+	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo, mockBlockRepo)
 
-	t.Run("Success - user1.Id < user2.Id", func(t *testing.T) {
-		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
-		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
+	t.Run("successful friendship creation with user1.Id < user2.Id", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		user2 := &entity.User{Id: 2, Email: email2}
 
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().CreateFriendship(int64(1), int64(2)).Return(nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user2.Id, user1.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockFriendshipRepo.EXPECT().CreateFriendship(user1.Id, user2.Id).Return(nil)
 
-		err := service.CreateFriendship("user1@example.com", "user2@example.com")
+		err := service.CreateFriendship(email1, email2)
 		assert.NoError(t, err)
 	})
 
-	t.Run("Success - user1.Id > user2.Id", func(t *testing.T) {
-		user1 := &entity.User{Id: 2, Email: "user1@example.com"}
-		user2 := &entity.User{Id: 1, Email: "user2@example.com"}
+	t.Run("successful friendship creation with user1.Id > user2.Id", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 2, Email: email1}
+		user2 := &entity.User{Id: 1, Email: email2}
 
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().CreateFriendship(int64(1), int64(2)).Return(nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user2.Id, user1.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockFriendshipRepo.EXPECT().CreateFriendship(user2.Id, user1.Id).Return(nil)
 
-		err := service.CreateFriendship("user1@example.com", "user2@example.com")
+		err := service.CreateFriendship(email1, email2)
 		assert.NoError(t, err)
 	})
 
-	t.Run("Error - user1 not found", func(t *testing.T) {
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(nil, gorm.ErrRecordNotFound)
+	t.Run("first user not found", func(t *testing.T) {
+		email1 := "nonexistent@example.com"
+		email2 := "user2@example.com"
 
-		err := service.CreateFriendship("user1@example.com", "user2@example.com")
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(nil, gorm.ErrRecordNotFound)
+
+		err := service.CreateFriendship(email1, email2)
 		assert.Equal(t, ErrUserNotFound, err)
 	})
 
-	t.Run("Error - user2 not found", func(t *testing.T) {
-		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
+	t.Run("second user not found", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "nonexistent@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
 
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(nil, gorm.ErrRecordNotFound)
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(nil, gorm.ErrRecordNotFound)
 
-		err := service.CreateFriendship("user1@example.com", "user2@example.com")
+		err := service.CreateFriendship(email1, email2)
 		assert.Equal(t, ErrUserNotFound, err)
 	})
 
-	t.Run("Error - same user", func(t *testing.T) {
-		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
-		user2 := &entity.User{Id: 1, Email: "user1@example.com"}
+	t.Run("same user friendship", func(t *testing.T) {
+		email := "user1@example.com"
+		user := &entity.User{Id: 1, Email: email}
 
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user2, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email).Return(user, nil).Times(2)
 
-		err := service.CreateFriendship("user1@example.com", "user1@example.com")
+		err := service.CreateFriendship(email, email)
 		assert.Equal(t, ErrInvalidRequest, err)
 	})
 
-	t.Run("Error - already friends", func(t *testing.T) {
-		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
-		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
-		duplicateErr := errors.New("duplicate key value violates unique constraint")
+	t.Run("user1 blocked user2", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		user2 := &entity.User{Id: 2, Email: email2}
 
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().CreateFriendship(int64(1), int64(2)).Return(duplicateErr)
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(&entity.BlockRelationship{}, nil)
 
-		err := service.CreateFriendship("user1@example.com", "user2@example.com")
+		err := service.CreateFriendship(email1, email2)
+		assert.Equal(t, ErrIsBlocked, err)
+	})
+
+	t.Run("user2 blocked user1", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		user2 := &entity.User{Id: 2, Email: email2}
+
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user2.Id, user1.Id).Return(&entity.BlockRelationship{}, nil)
+
+		err := service.CreateFriendship(email1, email2)
+		assert.Equal(t, ErrIsBlocked, err)
+	})
+
+	t.Run("already friends", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		user2 := &entity.User{Id: 2, Email: email2}
+		duplicateKeyError := errors.New("duplicate key constraint violation")
+
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user2.Id, user1.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockFriendshipRepo.EXPECT().CreateFriendship(user1.Id, user2.Id).Return(duplicateKeyError)
+
+		err := service.CreateFriendship(email1, email2)
 		assert.Equal(t, ErrAlreadyFriend, err)
 	})
 
-	t.Run("Error - user repo error", func(t *testing.T) {
-		repoErr := errors.New("database error")
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(nil, repoErr)
+	t.Run("database error on first user lookup", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		dbError := errors.New("database connection error")
 
-		err := service.CreateFriendship("user1@example.com", "user2@example.com")
-		assert.Equal(t, repoErr, err)
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(nil, dbError)
+
+		err := service.CreateFriendship(email1, email2)
+		assert.Equal(t, dbError, err)
 	})
 
-	t.Run("Error - friendship repo error", func(t *testing.T) {
-		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
-		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
-		repoErr := errors.New("database error")
+	t.Run("database error on second user lookup", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		dbError := errors.New("database connection error")
 
-		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().CreateFriendship(int64(1), int64(2)).Return(repoErr)
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(nil, dbError)
 
-		err := service.CreateFriendship("user1@example.com", "user2@example.com")
-		assert.Equal(t, repoErr, err)
+		err := service.CreateFriendship(email1, email2)
+		assert.Equal(t, dbError, err)
+	})
+
+	t.Run("database error on first block relationship check", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		user2 := &entity.User{Id: 2, Email: email2}
+		dbError := errors.New("database error")
+
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(nil, dbError)
+
+		err := service.CreateFriendship(email1, email2)
+		assert.Equal(t, dbError, err)
+	})
+
+	t.Run("database error on second block relationship check", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		user2 := &entity.User{Id: 2, Email: email2}
+		dbError := errors.New("database error")
+
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user2.Id, user1.Id).Return(nil, dbError)
+
+		err := service.CreateFriendship(email1, email2)
+		assert.Equal(t, dbError, err)
+	})
+
+	t.Run("database error on friendship creation", func(t *testing.T) {
+		email1 := "user1@example.com"
+		email2 := "user2@example.com"
+		user1 := &entity.User{Id: 1, Email: email1}
+		user2 := &entity.User{Id: 2, Email: email2}
+		dbError := errors.New("database error")
+
+		mockUserRepo.EXPECT().GetUserByEmail(email1).Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail(email2).Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user1.Id, user2.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockBlockRepo.EXPECT().GetBlockRelationship(user2.Id, user1.Id).Return(nil, gorm.ErrRecordNotFound)
+		mockFriendshipRepo.EXPECT().CreateFriendship(user1.Id, user2.Id).Return(dbError)
+
+		err := service.CreateFriendship(email1, email2)
+		assert.Equal(t, dbError, err)
 	})
 }
-func TestRetrieveFriendsList(t *testing.T) {
+
+func TestSubscriptionService_RetrieveFriendsList(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockFriendshipRepo := mock.NewMockFriendshipRepository(ctrl)
 	mockUserRepo := mock.NewMockUserRepository(ctrl)
-	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo)
+	mockBlockRepo := mock.NewMockBlockRelationshipRepository(ctrl)
+	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo, mockBlockRepo)
 
 	t.Run("Success - retrieve friends list", func(t *testing.T) {
 		user := &entity.User{Id: 1, Email: "user@example.com"}
@@ -187,20 +286,21 @@ func TestRetrieveFriendsList(t *testing.T) {
 		assert.Equal(t, repoErr, err)
 	})
 }
-func TestRetrieveCommonFriends(t *testing.T) {
+func TestSubscriptionService_RetrieveCommonFriends(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockFriendshipRepo := mock.NewMockFriendshipRepository(ctrl)
 	mockUserRepo := mock.NewMockUserRepository(ctrl)
-	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo)
+	mockBlockRepo := mock.NewMockBlockRelationshipRepository(ctrl)
+	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo, mockBlockRepo)
 
 	t.Run("Success - common friends found", func(t *testing.T) {
 		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
 		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
 		commonFriend1 := &entity.User{Id: 3, Email: "friend1@example.com"}
 		commonFriend2 := &entity.User{Id: 4, Email: "friend2@example.com"}
-		
+
 		friendIdsOfUser1 := []int64{3, 4, 5}
 		friendIdsOfUser2 := []int64{3, 4, 6}
 
@@ -221,7 +321,7 @@ func TestRetrieveCommonFriends(t *testing.T) {
 	t.Run("Success - no common friends", func(t *testing.T) {
 		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
 		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
-		
+
 		friendIdsOfUser1 := []int64{3, 4}
 		friendIdsOfUser2 := []int64{5, 6}
 
@@ -238,7 +338,7 @@ func TestRetrieveCommonFriends(t *testing.T) {
 	t.Run("Success - empty friends lists", func(t *testing.T) {
 		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
 		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
-		
+
 		friendIdsOfUser1 := []int64{}
 		friendIdsOfUser2 := []int64{}
 
@@ -335,7 +435,7 @@ func TestRetrieveCommonFriends(t *testing.T) {
 	t.Run("Error - common friend lookup error", func(t *testing.T) {
 		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
 		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
-		
+
 		friendIdsOfUser1 := []int64{3, 4}
 		friendIdsOfUser2 := []int64{3, 5}
 		repoErr := errors.New("friend lookup error")
@@ -351,15 +451,14 @@ func TestRetrieveCommonFriends(t *testing.T) {
 		assert.Equal(t, repoErr, err)
 	})
 }
-
-func TestCountFriends(t *testing.T) {
+func TestSubscriptionService_CountFriends(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockFriendshipRepo := mock.NewMockFriendshipRepository(ctrl)
 	mockUserRepo := mock.NewMockUserRepository(ctrl)
-	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo)
-
+	mockBlockRepo := mock.NewMockBlockRelationshipRepository(ctrl)
+	service := NewFriendshipService(mockFriendshipRepo, mockUserRepo, mockBlockRepo)
 	t.Run("Success - count non-nil friends", func(t *testing.T) {
 		friends := []*entity.User{
 			{Id: 1, Email: "friend1@example.com"},
@@ -397,7 +496,3 @@ func TestCountFriends(t *testing.T) {
 		assert.Equal(t, int64(0), count)
 	})
 }
-
-
-
-

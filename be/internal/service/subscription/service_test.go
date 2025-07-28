@@ -11,111 +11,87 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestCreateSubscription(t *testing.T) {
+func TestSubscriptionService_CreateSubscription(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSubscriptionRepo := mock.NewMockSubscriptionRepository(ctrl)
 	mockUserRepo := mock.NewMockUserRepository(ctrl)
-	service := NewSubscriptionService(mockSubscriptionRepo, mockUserRepo)
+	mockSubscriptionRepo := mock.NewMockSubscriptionRepository(ctrl)
+	mockBlockRepo := mock.NewMockBlockRelationshipRepository(ctrl)
 
-	t.Run("successful subscription creation", func(t *testing.T) {
-		requestorEmail := "user1@example.com"
-		targetEmail := "user2@example.com"
-		user1 := &entity.User{Id: 1, Email: requestorEmail}
-		user2 := &entity.User{Id: 2, Email: targetEmail}
+	service := NewSubscriptionService(mockSubscriptionRepo, mockUserRepo, mockBlockRepo)
 
-		mockUserRepo.EXPECT().GetUserByEmail(requestorEmail).Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail(targetEmail).Return(user2, nil)
-		mockSubscriptionRepo.EXPECT().CreateSubscription(user1.Id, user2.Id).Return(nil)
+	t.Run("Success", func(t *testing.T) {
+		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
+		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
 
-		err := service.CreateSubscription(requestorEmail, targetEmail)
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(int64(1), int64(2)).Return(nil, gorm.ErrRecordNotFound)
+		mockSubscriptionRepo.EXPECT().CreateSubscription(int64(1), int64(2)).Return(nil)
+
+		err := service.CreateSubscription("user1@example.com", "user2@example.com")
 		assert.NoError(t, err)
 	})
 
-	t.Run("requestor user not found", func(t *testing.T) {
-		requestorEmail := "nonexistent@example.com"
-		targetEmail := "user2@example.com"
+	t.Run("RequestorNotFound", func(t *testing.T) {
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(nil, gorm.ErrRecordNotFound)
 
-		mockUserRepo.EXPECT().GetUserByEmail(requestorEmail).Return(nil, gorm.ErrRecordNotFound)
-
-		err := service.CreateSubscription(requestorEmail, targetEmail)
+		err := service.CreateSubscription("user1@example.com", "user2@example.com")
 		assert.Equal(t, ErrUserNotFound, err)
 	})
 
-	t.Run("target user not found", func(t *testing.T) {
-		requestorEmail := "user1@example.com"
-		targetEmail := "nonexistent@example.com"
-		user1 := &entity.User{Id: 1, Email: requestorEmail}
+	t.Run("TargetNotFound", func(t *testing.T) {
+		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
 
-		mockUserRepo.EXPECT().GetUserByEmail(requestorEmail).Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail(targetEmail).Return(nil, gorm.ErrRecordNotFound)
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(nil, gorm.ErrRecordNotFound)
 
-		err := service.CreateSubscription(requestorEmail, targetEmail)
+		err := service.CreateSubscription("user1@example.com", "user2@example.com")
 		assert.Equal(t, ErrUserNotFound, err)
 	})
 
-	t.Run("same user subscription", func(t *testing.T) {
-		email := "user1@example.com"
-		user := &entity.User{Id: 1, Email: email}
+	t.Run("SameUser", func(t *testing.T) {
+		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
 
-		mockUserRepo.EXPECT().GetUserByEmail(email).Return(user, nil).Times(2)
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
 
-		err := service.CreateSubscription(email, email)
+		err := service.CreateSubscription("user1@example.com", "user1@example.com")
 		assert.Equal(t, ErrInvalidRequest, err)
 	})
 
-	t.Run("already subscribed", func(t *testing.T) {
-		requestorEmail := "user1@example.com"
-		targetEmail := "user2@example.com"
-		user1 := &entity.User{Id: 1, Email: requestorEmail}
-		user2 := &entity.User{Id: 2, Email: targetEmail}
-		duplicateKeyError := errors.New("duplicate key constraint violation")
+	t.Run("UserIsBlocked", func(t *testing.T) {
+		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
+		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
 
-		mockUserRepo.EXPECT().GetUserByEmail(requestorEmail).Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail(targetEmail).Return(user2, nil)
-		mockSubscriptionRepo.EXPECT().CreateSubscription(user1.Id, user2.Id).Return(duplicateKeyError)
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(int64(1), int64(2)).Return(&entity.BlockRelationship{}, nil)
 
-		err := service.CreateSubscription(requestorEmail, targetEmail)
+		err := service.CreateSubscription("user1@example.com", "user2@example.com")
+		assert.Equal(t, ErrIsBlocked, err)
+	})
+
+	t.Run("AlreadySubscribed", func(t *testing.T) {
+		user1 := &entity.User{Id: 1, Email: "user1@example.com"}
+		user2 := &entity.User{Id: 2, Email: "user2@example.com"}
+		duplicateErr := errors.New("duplicate key constraint")
+
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
+		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
+		mockBlockRepo.EXPECT().GetBlockRelationship(int64(1), int64(2)).Return(nil, gorm.ErrRecordNotFound)
+		mockSubscriptionRepo.EXPECT().CreateSubscription(int64(1), int64(2)).Return(duplicateErr)
+
+		err := service.CreateSubscription("user1@example.com", "user2@example.com")
 		assert.Equal(t, ErrAlreadySubscribed, err)
 	})
 
-	t.Run("database error on requestor lookup", func(t *testing.T) {
-		requestorEmail := "user1@example.com"
-		targetEmail := "user2@example.com"
-		dbError := errors.New("database connection error")
+	t.Run("DatabaseError", func(t *testing.T) {
+		dbErr := errors.New("database error")
+		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(nil, dbErr)
 
-		mockUserRepo.EXPECT().GetUserByEmail(requestorEmail).Return(nil, dbError)
-
-		err := service.CreateSubscription(requestorEmail, targetEmail)
-		assert.Equal(t, dbError, err)
-	})
-
-	t.Run("database error on target lookup", func(t *testing.T) {
-		requestorEmail := "user1@example.com"
-		targetEmail := "user2@example.com"
-		user1 := &entity.User{Id: 1, Email: requestorEmail}
-		dbError := errors.New("database connection error")
-
-		mockUserRepo.EXPECT().GetUserByEmail(requestorEmail).Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail(targetEmail).Return(nil, dbError)
-
-		err := service.CreateSubscription(requestorEmail, targetEmail)
-		assert.Equal(t, dbError, err)
-	})
-
-	t.Run("database error on subscription creation", func(t *testing.T) {
-		requestorEmail := "user1@example.com"
-		targetEmail := "user2@example.com"
-		user1 := &entity.User{Id: 1, Email: requestorEmail}
-		user2 := &entity.User{Id: 2, Email: targetEmail}
-		dbError := errors.New("database error")
-
-		mockUserRepo.EXPECT().GetUserByEmail(requestorEmail).Return(user1, nil)
-		mockUserRepo.EXPECT().GetUserByEmail(targetEmail).Return(user2, nil)
-		mockSubscriptionRepo.EXPECT().CreateSubscription(user1.Id, user2.Id).Return(dbError)
-
-		err := service.CreateSubscription(requestorEmail, targetEmail)
-		assert.Equal(t, dbError, err)
+		err := service.CreateSubscription("user1@example.com", "user2@example.com")
+		assert.Equal(t, dbErr, err)
 	})
 }

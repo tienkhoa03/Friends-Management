@@ -2,6 +2,7 @@ package service
 
 import (
 	"BE_Friends_Management/internal/domain/entity"
+	block_relationship "BE_Friends_Management/internal/repository/block_relationship"
 	friendship "BE_Friends_Management/internal/repository/friendship"
 	user "BE_Friends_Management/internal/repository/users"
 	"errors"
@@ -20,14 +21,16 @@ type FriendshipService interface {
 }
 
 type friendshipService struct {
-	repo     friendship.FriendshipRepository
-	userRepo user.UserRepository
+	repo                  friendship.FriendshipRepository
+	userRepo              user.UserRepository
+	blockRelationshipRepo block_relationship.BlockRelationshipRepository
 }
 
-func NewFriendshipService(repo friendship.FriendshipRepository, userRepo user.UserRepository) FriendshipService {
+func NewFriendshipService(repo friendship.FriendshipRepository, userRepo user.UserRepository, blockRelationshipRepo block_relationship.BlockRelationshipRepository) FriendshipService {
 	return &friendshipService{
-		repo:     repo,
-		userRepo: userRepo,
+		repo:                  repo,
+		userRepo:              userRepo,
+		blockRelationshipRepo: blockRelationshipRepo,
 	}
 }
 
@@ -48,6 +51,20 @@ func (service *friendshipService) CreateFriendship(email1, email2 string) error 
 	}
 	if user1.Id == user2.Id {
 		return ErrInvalidRequest
+	}
+	_, err = service.blockRelationshipRepo.GetBlockRelationship(user1.Id, user2.Id)
+	if err == nil {
+		return ErrIsBlocked
+	}
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	_, err = service.blockRelationshipRepo.GetBlockRelationship(user2.Id, user1.Id)
+	if err == nil {
+		return ErrIsBlocked
+	}
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
 	}
 	if user1.Id < user2.Id {
 		err = service.repo.CreateFriendship(user1.Id, user2.Id)

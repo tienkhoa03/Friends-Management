@@ -45,6 +45,8 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
 		case service.ErrAlreadySubscribed:
 			pkg.PanicExeption(constant.Conflict, err.Error())
+		case service.ErrIsBlocked:
+			pkg.PanicExeption(constant.StatusForbidden, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new subscription.")
 		}

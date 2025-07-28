@@ -5,9 +5,11 @@
 package mock_repository
 
 import (
+	entity "BE_Friends_Management/internal/domain/entity"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockSubscriptionRepository is a mock of SubscriptionRepository interface.
@@ -45,4 +47,47 @@ func (m *MockSubscriptionRepository) CreateSubscription(requestorId, targetId in
 func (mr *MockSubscriptionRepositoryMockRecorder) CreateSubscription(requestorId, targetId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockSubscriptionRepository)(nil).CreateSubscription), requestorId, targetId)
+}
+
+// DeleteSubscription mocks base method.
+func (m *MockSubscriptionRepository) DeleteSubscription(tx *gorm.DB, requestorId, targetId int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSubscription", tx, requestorId, targetId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSubscription indicates an expected call of DeleteSubscription.
+func (mr *MockSubscriptionRepositoryMockRecorder) DeleteSubscription(tx, requestorId, targetId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscription", reflect.TypeOf((*MockSubscriptionRepository)(nil).DeleteSubscription), tx, requestorId, targetId)
+}
+
+// GetDB mocks base method.
+func (m *MockSubscriptionRepository) GetDB() *gorm.DB {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDB")
+	ret0, _ := ret[0].(*gorm.DB)
+	return ret0
+}
+
+// GetDB indicates an expected call of GetDB.
+func (mr *MockSubscriptionRepositoryMockRecorder) GetDB() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDB", reflect.TypeOf((*MockSubscriptionRepository)(nil).GetDB))
+}
+
+// GetSubscription mocks base method.
+func (m *MockSubscriptionRepository) GetSubscription(requestorId, targetId int64) (*entity.Subscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscription", requestorId, targetId)
+	ret0, _ := ret[0].(*entity.Subscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscription indicates an expected call of GetSubscription.
+func (mr *MockSubscriptionRepositoryMockRecorder) GetSubscription(requestorId, targetId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscription", reflect.TypeOf((*MockSubscriptionRepository)(nil).GetSubscription), requestorId, targetId)
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	block_relationship "BE_Friends_Management/internal/repository/block_relationship"
 	subscription "BE_Friends_Management/internal/repository/subscription"
 	user "BE_Friends_Management/internal/repository/users"
 	"errors"
@@ -16,14 +17,16 @@ type SubscriptionService interface {
 }
 
 type subscriptionService struct {
-	repo     subscription.SubscriptionRepository
-	userRepo user.UserRepository
+	repo                  subscription.SubscriptionRepository
+	userRepo              user.UserRepository
+	blockRelationshipRepo block_relationship.BlockRelationshipRepository
 }
 
-func NewSubscriptionService(repo subscription.SubscriptionRepository, userRepo user.UserRepository) SubscriptionService {
+func NewSubscriptionService(repo subscription.SubscriptionRepository, userRepo user.UserRepository, blockRelationshipRepo block_relationship.BlockRelationshipRepository) SubscriptionService {
 	return &subscriptionService{
-		repo:     repo,
-		userRepo: userRepo,
+		repo:                  repo,
+		userRepo:              userRepo,
+		blockRelationshipRepo: blockRelationshipRepo,
 	}
 }
 
@@ -44,6 +47,13 @@ func (service *subscriptionService) CreateSubscription(requestorEmail, targetEma
 	}
 	if user1.Id == user2.Id {
 		return ErrInvalidRequest
+	}
+	_, err = service.blockRelationshipRepo.GetBlockRelationship(user1.Id, user2.Id)
+	if err == nil {
+		return ErrIsBlocked
+	}
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
 	}
 	err = service.repo.CreateSubscription(user1.Id, user2.Id)
 	if err != nil && strings.Contains(err.Error(), "duplicate key") {

@@ -1,10 +1,15 @@
 package repository
 
-import "BE_Friends_Management/internal/domain/entity"
+import (
+	"BE_Friends_Management/internal/domain/entity"
+
+	"gorm.io/gorm"
+)
 
 //go:generate mockgen -source=interface.go -destination=../mock/mock_user_repository.go
 
 type UserRepository interface {
+	GetDB() *gorm.DB
 	CreateUser(user *entity.User) (*entity.User, error)
 	GetAllUser() []*entity.User
 	GetUserById(userId int64) (*entity.User, error)

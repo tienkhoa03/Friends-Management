@@ -24,6 +24,16 @@ definitions:
       success:
         type: boolean
     type: object
+  dto.CreateBlockRequest:
+    properties:
+      requestor:
+        type: string
+      target:
+        type: string
+    required:
+    - requestor
+    - target
+    type: object
   dto.CreateFriendshipRequest:
     properties:
       friends:
@@ -46,6 +56,28 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/block:
+    post:
+      consumes:
+      - application/json
+      description: Create new block relationship
+      parameters:
+      - description: Requestor's email and target's email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBlockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      summary: Create new block relationship
+      tags:
+      - BlockRelationship
   /api/friendship:
     post:
       consumes:

@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/block": {
+            "post": {
+                "description": "Create new block relationship",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BlockRelationship"
+                ],
+                "summary": "Create new block relationship",
+                "parameters": [
+                    {
+                        "description": "Requestor's email and target's email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/friendship": {
             "post": {
                 "description": "Create new friendship",
@@ -343,6 +377,21 @@ const docTemplate = `{
                 },
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "dto.CreateBlockRequest": {
+            "type": "object",
+            "required": [
+                "requestor",
+                "target"
+            ],
+            "properties": {
+                "requestor": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
                 }
             }
         },
