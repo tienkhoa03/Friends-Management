@@ -5,9 +5,11 @@
 package mock_repository
 
 import (
+	entity "BE_Friends_Management/internal/domain/entity"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockFriendshipRepository is a mock of FriendshipRepository interface.
@@ -45,6 +47,35 @@ func (m *MockFriendshipRepository) CreateFriendship(userId1, userId2 int64) erro
 func (mr *MockFriendshipRepositoryMockRecorder) CreateFriendship(userId1, userId2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFriendship", reflect.TypeOf((*MockFriendshipRepository)(nil).CreateFriendship), userId1, userId2)
+}
+
+// GetDB mocks base method.
+func (m *MockFriendshipRepository) GetDB() *gorm.DB {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDB")
+	ret0, _ := ret[0].(*gorm.DB)
+	return ret0
+}
+
+// GetDB indicates an expected call of GetDB.
+func (mr *MockFriendshipRepositoryMockRecorder) GetDB() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDB", reflect.TypeOf((*MockFriendshipRepository)(nil).GetDB))
+}
+
+// GetFriendship mocks base method.
+func (m *MockFriendshipRepository) GetFriendship(userId1, userId2 int64) (*entity.Friendship, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFriendship", userId1, userId2)
+	ret0, _ := ret[0].(*entity.Friendship)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFriendship indicates an expected call of GetFriendship.
+func (mr *MockFriendshipRepositoryMockRecorder) GetFriendship(userId1, userId2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFriendship", reflect.TypeOf((*MockFriendshipRepository)(nil).GetFriendship), userId1, userId2)
 }
 
 // RetrieveFriendsList mocks base method.

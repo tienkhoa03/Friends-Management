@@ -14,6 +14,10 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &PostgreSQLUserRepository{db: db}
 }
 
+func (r *PostgreSQLUserRepository) GetDB() *gorm.DB {
+	return r.db
+}
+
 func (r *PostgreSQLUserRepository) GetAllUser() []*entity.User {
 	var users = []*entity.User{}
 	result := r.db.Model(entity.User{}).Find(&users)

@@ -5,13 +5,17 @@ import (
 )
 
 type Handlers struct {
-	User       *UserHandler
-	Friendship *FriendshipHandler
+	User              *UserHandler
+	Friendship        *FriendshipHandler
+	Subscription      *SubscriptionHandler
+	BlockRelationship *BlockRelationshipHandler
 }
 
 func NewHandlers(services *service.Service) *Handlers {
 	return &Handlers{
-		User:       NewUserHandler(services.User),
-		Friendship: NewFriendshipHandler(services.Friendship),
+		User:              NewUserHandler(services.User),
+		Friendship:        NewFriendshipHandler(services.Friendship),
+		Subscription:      NewSubscriptionHandler(services.Subscription),
+		BlockRelationship: NewBlockRelationshipHandler(services.BlockRelationship),
 	}
 }

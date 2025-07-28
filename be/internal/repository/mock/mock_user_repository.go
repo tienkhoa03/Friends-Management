@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockUserRepository is a mock of UserRepository interface.
@@ -75,6 +76,20 @@ func (m *MockUserRepository) GetAllUser() []*entity.User {
 func (mr *MockUserRepositoryMockRecorder) GetAllUser() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllUser", reflect.TypeOf((*MockUserRepository)(nil).GetAllUser))
+}
+
+// GetDB mocks base method.
+func (m *MockUserRepository) GetDB() *gorm.DB {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDB")
+	ret0, _ := ret[0].(*gorm.DB)
+	return ret0
+}
+
+// GetDB indicates an expected call of GetDB.
+func (mr *MockUserRepositoryMockRecorder) GetDB() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDB", reflect.TypeOf((*MockUserRepository)(nil).GetDB))
 }
 
 // GetUserByEmail mocks base method.

@@ -14,6 +14,10 @@ func NewFriendshipRepository(db *gorm.DB) FriendshipRepository {
 	return &PostgreSQLFriendshipRepository{db: db}
 }
 
+func (r *PostgreSQLFriendshipRepository) GetDB() *gorm.DB {
+	return r.db
+}
+
 func (r *PostgreSQLFriendshipRepository) CreateFriendship(userId1, userId2 int64) error {
 	newFriendship := entity.Friendship{UserId1: userId1, UserId2: userId2}
 	err := r.db.Model(entity.Friendship{}).Create(&newFriendship).Error
@@ -30,4 +34,13 @@ func (r *PostgreSQLFriendshipRepository) RetrieveFriendsList(userId int64) ([]in
 		return nil, err
 	}
 	return friends, nil
+}
+
+func (r *PostgreSQLFriendshipRepository) GetFriendship(userId1, userId2 int64) (*entity.Friendship, error) {
+	friendship := entity.Friendship{UserId1: userId1, UserId2: userId2}
+	err := r.db.Model(entity.Friendship{}).First(&friendship).Error
+	if err != nil {
+		return nil, err
+	}
+	return &friendship, nil
 }

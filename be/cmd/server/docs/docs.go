@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/block": {
+            "post": {
+                "description": "Create new block relationship",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BlockRelationship"
+                ],
+                "summary": "Create new block relationship",
+                "parameters": [
+                    {
+                        "description": "Requestor's email and target's email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/friendship": {
             "post": {
                 "description": "Create new friendship",
@@ -115,6 +149,40 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.ApiResponseSuccessWithFriendsList"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subscription": {
+            "post": {
+                "description": "Create new subscription",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subscription"
+                ],
+                "summary": "Create new subscription",
+                "parameters": [
+                    {
+                        "description": "Requestor's email and target's email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
                         }
                     }
                 }
@@ -312,6 +380,21 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateBlockRequest": {
+            "type": "object",
+            "required": [
+                "requestor",
+                "target"
+            ],
+            "properties": {
+                "requestor": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateFriendshipRequest": {
             "type": "object",
             "required": [
@@ -323,6 +406,21 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.CreateSubscriptionRequest": {
+            "type": "object",
+            "required": [
+                "requestor",
+                "target"
+            ],
+            "properties": {
+                "requestor": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
                 }
             }
         }
