@@ -34,25 +34,25 @@ func NewBlockRelationshipService(repo blockRelationship.BlockRelationshipReposit
 }
 
 func (service *blockRelationshipService) CreateBlockRelationship(requestorEmail, targetEmail string) error {
-	user1, err := service.userRepo.GetUserByEmail(requestorEmail)
+	requestor, err := service.userRepo.GetUserByEmail(requestorEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
 	}
 	if err != nil {
 		return err
 	}
-	user2, err := service.userRepo.GetUserByEmail(targetEmail)
+	target, err := service.userRepo.GetUserByEmail(targetEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if user1.Id == user2.Id {
+	if requestor.Id == target.Id {
 		return ErrInvalidRequest
 	}
-	userId1 := user1.Id
-	userId2 := user2.Id
+	userId1 := requestor.Id
+	userId2 := target.Id
 	if userId1 > userId2 {
 		userId1, userId2 = userId2, userId1
 	}
@@ -60,44 +60,27 @@ func (service *blockRelationshipService) CreateBlockRelationship(requestorEmail,
 	if (errFriendship != nil) && !errors.Is(errFriendship, gorm.ErrRecordNotFound) {
 		return errFriendship
 	}
-	_, errSubscription := service.subscriptionRepo.GetSubscription(user1.Id, user2.Id)
+	_, errSubscription := service.subscriptionRepo.GetSubscription(requestor.Id, target.Id)
 	if (errSubscription != nil) && !errors.Is(errSubscription, gorm.ErrRecordNotFound) {
 		return errSubscription
 	}
 	db := service.repo.GetDB()
 	err = db.Transaction(func(tx *gorm.DB) error {
-		if errFriendship == nil {
-			if errSubscription == nil {
-				err := service.subscriptionRepo.DeleteSubscription(tx, user1.Id, user2.Id)
-				if err != nil {
-					return err
-				}
-			} else {
-				return ErrNotSubscribed
+		if errFriendship == nil && errSubscription != nil {
+			return ErrNotSubscribed
+		}
+		if errSubscription == nil {
+			err := service.subscriptionRepo.DeleteSubscription(tx, requestor.Id, target.Id)
+			if err != nil {
+				return err
 			}
-		} else {
-			if errSubscription == nil {
-				err := service.subscriptionRepo.DeleteSubscription(tx, user1.Id, user2.Id)
-				if err != nil {
-					return err
-				}
-				err = service.repo.CreateBlockRelationship(tx, user1.Id, user2.Id)
-				if err != nil && strings.Contains(err.Error(), "duplicate key") {
-					return ErrAlreadyBlocked
-				}
-				if err != nil {
-					return err
-				}
-			} else {
-				err := service.repo.CreateBlockRelationship(tx, user1.Id, user2.Id)
-				if err != nil && strings.Contains(err.Error(), "duplicate key") {
-					return ErrAlreadyBlocked
-				}
-				if err != nil {
-					return err
-				}
-
-			}
+		}
+		err := service.repo.CreateBlockRelationship(tx, requestor.Id, target.Id)
+		if err != nil && strings.Contains(err.Error(), "duplicate key") {
+			return ErrAlreadyBlocked
+		}
+		if err != nil {
+			return err
 		}
 		return nil
 	})

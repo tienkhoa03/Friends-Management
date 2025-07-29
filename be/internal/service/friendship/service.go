@@ -56,14 +56,14 @@ func (service *friendshipService) CreateFriendship(email1, email2 string) error 
 	if err == nil {
 		return ErrIsBlocked
 	}
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 	_, err = service.blockRelationshipRepo.GetBlockRelationship(user2.Id, user1.Id)
 	if err == nil {
 		return ErrIsBlocked
 	}
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 	if user1.Id < user2.Id {

@@ -49,6 +49,20 @@ func (mr *MockBlockRelationshipRepositoryMockRecorder) CreateBlockRelationship(t
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlockRelationship", reflect.TypeOf((*MockBlockRelationshipRepository)(nil).CreateBlockRelationship), tx, requestorId, targetId)
 }
 
+// DeleteBlockRelationship mocks base method.
+func (m *MockBlockRelationshipRepository) DeleteBlockRelationship(requestorId, targetId int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteBlockRelationship", requestorId, targetId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteBlockRelationship indicates an expected call of DeleteBlockRelationship.
+func (mr *MockBlockRelationshipRepositoryMockRecorder) DeleteBlockRelationship(requestorId, targetId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBlockRelationship", reflect.TypeOf((*MockBlockRelationshipRepository)(nil).DeleteBlockRelationship), requestorId, targetId)
+}
+
 // GetBlockRelationship mocks base method.
 func (m *MockBlockRelationshipRepository) GetBlockRelationship(requestorId, targetId int64) (*entity.BlockRelationship, error) {
 	m.ctrl.T.Helper()

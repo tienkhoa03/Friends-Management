@@ -41,3 +41,9 @@ func (r *PostgreSQLBlockRelationshipRepository) GetBlockRequestorIds(targetId in
 	}
 	return requestorIds, nil
 }
+
+func (r *PostgreSQLBlockRelationshipRepository) DeleteBlockRelationship(requestorId, targetId int64) error {
+	blockRelationship := entity.BlockRelationship{RequestorId: requestorId, TargetId: targetId}
+	err := r.db.Delete(&blockRelationship).Error
+	return err
+}

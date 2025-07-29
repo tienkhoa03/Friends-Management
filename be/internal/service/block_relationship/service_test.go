@@ -61,6 +61,7 @@ func TestBlockRelationshipService_CreateBlockRelationship(t *testing.T) {
 
 		mockSQL.ExpectBegin()
 		mockSubscriptionRepo.EXPECT().DeleteSubscription(gomock.Any(), int64(1), int64(2)).Return(nil)
+		mockBlockRepo.EXPECT().CreateBlockRelationship(gomock.Any(), int64(1), int64(2)).Return(nil)
 		mockSQL.ExpectCommit()
 
 		err := service.CreateBlockRelationship("user1@example.com", "user2@example.com")

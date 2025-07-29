@@ -13,4 +13,5 @@ type BlockRelationshipRepository interface {
 	CreateBlockRelationship(tx *gorm.DB, requestorId, targetId int64) error
 	GetBlockRelationship(requestorId, targetId int64) (*entity.BlockRelationship, error)
 	GetBlockRequestorIds(targetId int64) ([]int64, error)
+	DeleteBlockRelationship(requestorId, targetId int64) error
 }
