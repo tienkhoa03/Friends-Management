@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_block_service.go
+//go:generate mockgen -source=service.go -destination=../mock/mock_notification_service.go
 
 type NotificationService interface {
 	GetUpdateRecipients(senderEmail, text string) ([]*entity.User, error)
@@ -85,7 +85,7 @@ func (service *notificationService) GetUpdateRecipients(senderEmail, text string
 
 	recipientIds := make([]int64, 0, len(recipientIdsSet))
 	for recipientId := range recipientIdsSet {
-		if recipientIdsSet[recipientId] == true {
+		if recipientIdsSet[recipientId] {
 			recipientIds = append(recipientIds, recipientId)
 		}
 	}

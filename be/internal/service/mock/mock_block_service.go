@@ -5,46 +5,44 @@
 package mock_service
 
 import (
-	entity "BE_Friends_Management/internal/domain/entity"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockNotificationService is a mock of NotificationService interface.
-type MockNotificationService struct {
+// MockBlockRelationshipService is a mock of BlockRelationshipService interface.
+type MockBlockRelationshipService struct {
 	ctrl     *gomock.Controller
-	recorder *MockNotificationServiceMockRecorder
+	recorder *MockBlockRelationshipServiceMockRecorder
 }
 
-// MockNotificationServiceMockRecorder is the mock recorder for MockNotificationService.
-type MockNotificationServiceMockRecorder struct {
-	mock *MockNotificationService
+// MockBlockRelationshipServiceMockRecorder is the mock recorder for MockBlockRelationshipService.
+type MockBlockRelationshipServiceMockRecorder struct {
+	mock *MockBlockRelationshipService
 }
 
-// NewMockNotificationService creates a new mock instance.
-func NewMockNotificationService(ctrl *gomock.Controller) *MockNotificationService {
-	mock := &MockNotificationService{ctrl: ctrl}
-	mock.recorder = &MockNotificationServiceMockRecorder{mock}
+// NewMockBlockRelationshipService creates a new mock instance.
+func NewMockBlockRelationshipService(ctrl *gomock.Controller) *MockBlockRelationshipService {
+	mock := &MockBlockRelationshipService{ctrl: ctrl}
+	mock.recorder = &MockBlockRelationshipServiceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockNotificationService) EXPECT() *MockNotificationServiceMockRecorder {
+func (m *MockBlockRelationshipService) EXPECT() *MockBlockRelationshipServiceMockRecorder {
 	return m.recorder
 }
 
-// GetUpdateRecipients mocks base method.
-func (m *MockNotificationService) GetUpdateRecipients(senderEmail, text string) ([]*entity.User, error) {
+// CreateBlockRelationship mocks base method.
+func (m *MockBlockRelationshipService) CreateBlockRelationship(requestorEmail, targetEmail string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUpdateRecipients", senderEmail, text)
-	ret0, _ := ret[0].([]*entity.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "CreateBlockRelationship", requestorEmail, targetEmail)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// GetUpdateRecipients indicates an expected call of GetUpdateRecipients.
-func (mr *MockNotificationServiceMockRecorder) GetUpdateRecipients(senderEmail, text interface{}) *gomock.Call {
+// CreateBlockRelationship indicates an expected call of CreateBlockRelationship.
+func (mr *MockBlockRelationshipServiceMockRecorder) CreateBlockRelationship(requestorEmail, targetEmail interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUpdateRecipients", reflect.TypeOf((*MockNotificationService)(nil).GetUpdateRecipients), senderEmail, text)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlockRelationship", reflect.TypeOf((*MockBlockRelationshipService)(nil).CreateBlockRelationship), requestorEmail, targetEmail)
 }
