@@ -1,10 +1,10 @@
 # Build stage
-FROM golang:1.24-alpine3.20
+FROM golang:1.24.4
 
 WORKDIR /app
 
 # Copy go mod and download deps
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source
