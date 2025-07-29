@@ -78,17 +78,17 @@ func (mr *MockFriendshipRepositoryMockRecorder) GetFriendship(userId1, userId2 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFriendship", reflect.TypeOf((*MockFriendshipRepository)(nil).GetFriendship), userId1, userId2)
 }
 
-// RetrieveFriendsList mocks base method.
-func (m *MockFriendshipRepository) RetrieveFriendsList(userId int64) ([]int64, error) {
+// RetrieveFriendIds mocks base method.
+func (m *MockFriendshipRepository) RetrieveFriendIds(userId int64) ([]int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RetrieveFriendsList", userId)
+	ret := m.ctrl.Call(m, "RetrieveFriendIds", userId)
 	ret0, _ := ret[0].([]int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// RetrieveFriendsList indicates an expected call of RetrieveFriendsList.
-func (mr *MockFriendshipRepositoryMockRecorder) RetrieveFriendsList(userId interface{}) *gomock.Call {
+// RetrieveFriendIds indicates an expected call of RetrieveFriendIds.
+func (mr *MockFriendshipRepositoryMockRecorder) RetrieveFriendIds(userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RetrieveFriendsList", reflect.TypeOf((*MockFriendshipRepository)(nil).RetrieveFriendsList), userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RetrieveFriendIds", reflect.TypeOf((*MockFriendshipRepository)(nil).RetrieveFriendIds), userId)
 }

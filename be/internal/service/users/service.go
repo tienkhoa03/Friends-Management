@@ -8,7 +8,7 @@ import (
 //go:generate mockgen -source=service.go -destination=../mock/mock_user_service.go
 
 type UserService interface {
-	GetAllUser() []*entity.User
+	GetAllUser() ([]*entity.User, error)
 	GetUserById(userId int64) (*entity.User, error)
 	CreateUser(email string) (*entity.User, error)
 	DeleteUserById(userId int64) error
@@ -23,9 +23,9 @@ func NewUserService(repo user.UserRepository) UserService {
 	return &userService{repo: repo}
 }
 
-func (service *userService) GetAllUser() []*entity.User {
-	users := service.repo.GetAllUser()
-	return users
+func (service *userService) GetAllUser() ([]*entity.User, error) {
+	users, err := service.repo.GetAllUser()
+	return users, err
 }
 
 func (service *userService) GetUserById(userId int64) (*entity.User, error) {

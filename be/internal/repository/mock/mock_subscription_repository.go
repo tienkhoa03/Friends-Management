@@ -63,6 +63,21 @@ func (mr *MockSubscriptionRepositoryMockRecorder) DeleteSubscription(tx, request
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscription", reflect.TypeOf((*MockSubscriptionRepository)(nil).DeleteSubscription), tx, requestorId, targetId)
 }
 
+// GetAllSubscriberIds mocks base method.
+func (m *MockSubscriptionRepository) GetAllSubscriberIds(targetId int64) ([]int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllSubscriberIds", targetId)
+	ret0, _ := ret[0].([]int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllSubscriberIds indicates an expected call of GetAllSubscriberIds.
+func (mr *MockSubscriptionRepositoryMockRecorder) GetAllSubscriberIds(targetId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllSubscriberIds", reflect.TypeOf((*MockSubscriptionRepository)(nil).GetAllSubscriberIds), targetId)
+}
+
 // GetDB mocks base method.
 func (m *MockSubscriptionRepository) GetDB() *gorm.DB {
 	m.ctrl.T.Helper()

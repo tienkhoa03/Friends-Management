@@ -13,4 +13,5 @@ type SubscriptionRepository interface {
 	CreateSubscription(requestorId, targetId int64) error
 	DeleteSubscription(tx *gorm.DB, requestorId, targetId int64) error
 	GetSubscription(requestorId, targetId int64) (*entity.Subscription, error)
+	GetAllSubscriberIds(targetId int64) ([]int64, error)
 }

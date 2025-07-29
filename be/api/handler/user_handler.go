@@ -29,7 +29,11 @@ func NewUserHandler(service service.UserService) *UserHandler {
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 func (h *UserHandler) GetAllUser(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	users := h.service.GetAllUser()
+	users, err := h.service.GetAllUser()
+	if err != nil {
+		log.Error("Happened error when getting all users. Error: ", err)
+		pkg.PanicExeption(constant.UnknownError, "Happened error when getting all users")
+	}
 	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, users))
 }
 

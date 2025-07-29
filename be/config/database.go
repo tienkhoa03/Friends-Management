@@ -15,6 +15,11 @@ var users = []entity.User{
 	{Email: "user3@gmail.com"},
 	{Email: "user4@gmail.com"},
 	{Email: "user5@gmail.com"},
+	{Email: "user6@gmail.com"},
+	{Email: "user7@gmail.com"},
+	{Email: "user8@gmail.com"},
+	{Email: "user9@gmail.com"},
+	{Email: "user10@gmail.com"},
 }
 
 func ConnectToDB() *gorm.DB {

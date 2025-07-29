@@ -53,6 +53,16 @@ definitions:
     - requestor
     - target
     type: object
+  dto.GetUpdateRecipientsRequest:
+    properties:
+      sender:
+        type: string
+      text:
+        type: string
+    required:
+    - sender
+    - text
+    type: object
 info:
   contact: {}
 paths:
@@ -169,6 +179,29 @@ paths:
       summary: Create new subscription
       tags:
       - Subscription
+  /api/update-recipients:
+    post:
+      consumes:
+      - application/json
+      description: Get all email addresses that can receive updates from an email
+        address.
+      parameters:
+      - description: Sender email and update text
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GetUpdateRecipientsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      summary: Get update recipients
+      tags:
+      - Notification
   /api/users:
     get:
       consumes:

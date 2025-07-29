@@ -204,7 +204,7 @@ func TestSubscriptionService_CreateFriendship(t *testing.T) {
 	})
 }
 
-func TestSubscriptionService_RetrieveFriendsList(t *testing.T) {
+func TestSubscriptionService_RetrieveFriendIds(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -220,7 +220,7 @@ func TestSubscriptionService_RetrieveFriendsList(t *testing.T) {
 		friendIds := []int64{2, 3}
 
 		mockUserRepo.EXPECT().GetUserByEmail("user@example.com").Return(user, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIds, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIds, nil)
 		mockUserRepo.EXPECT().GetUserById(int64(2)).Return(friend1, nil)
 		mockUserRepo.EXPECT().GetUserById(int64(3)).Return(friend2, nil)
 
@@ -236,7 +236,7 @@ func TestSubscriptionService_RetrieveFriendsList(t *testing.T) {
 		friendIds := []int64{}
 
 		mockUserRepo.EXPECT().GetUserByEmail("user@example.com").Return(user, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIds, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIds, nil)
 
 		friends, err := service.RetrieveFriendsList("user@example.com")
 		assert.NoError(t, err)
@@ -265,7 +265,7 @@ func TestSubscriptionService_RetrieveFriendsList(t *testing.T) {
 		repoErr := errors.New("friendship database error")
 
 		mockUserRepo.EXPECT().GetUserByEmail("user@example.com").Return(user, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(nil, repoErr)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(nil, repoErr)
 
 		friends, err := service.RetrieveFriendsList("user@example.com")
 		assert.Nil(t, friends)
@@ -278,7 +278,7 @@ func TestSubscriptionService_RetrieveFriendsList(t *testing.T) {
 		repoErr := errors.New("friend lookup error")
 
 		mockUserRepo.EXPECT().GetUserByEmail("user@example.com").Return(user, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIds, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIds, nil)
 		mockUserRepo.EXPECT().GetUserById(int64(2)).Return(nil, repoErr)
 
 		friends, err := service.RetrieveFriendsList("user@example.com")
@@ -306,8 +306,8 @@ func TestSubscriptionService_RetrieveCommonFriends(t *testing.T) {
 
 		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
 		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIdsOfUser1, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(2)).Return(friendIdsOfUser2, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIdsOfUser1, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(2)).Return(friendIdsOfUser2, nil)
 		mockUserRepo.EXPECT().GetUserById(int64(3)).Return(commonFriend1, nil)
 		mockUserRepo.EXPECT().GetUserById(int64(4)).Return(commonFriend2, nil)
 
@@ -327,8 +327,8 @@ func TestSubscriptionService_RetrieveCommonFriends(t *testing.T) {
 
 		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
 		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIdsOfUser1, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(2)).Return(friendIdsOfUser2, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIdsOfUser1, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(2)).Return(friendIdsOfUser2, nil)
 
 		commonFriends, err := service.RetrieveCommonFriends("user1@example.com", "user2@example.com")
 		assert.NoError(t, err)
@@ -344,8 +344,8 @@ func TestSubscriptionService_RetrieveCommonFriends(t *testing.T) {
 
 		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
 		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIdsOfUser1, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(2)).Return(friendIdsOfUser2, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIdsOfUser1, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(2)).Return(friendIdsOfUser2, nil)
 
 		commonFriends, err := service.RetrieveCommonFriends("user1@example.com", "user2@example.com")
 		assert.NoError(t, err)
@@ -409,7 +409,7 @@ func TestSubscriptionService_RetrieveCommonFriends(t *testing.T) {
 
 		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
 		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(nil, repoErr)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(nil, repoErr)
 
 		commonFriends, err := service.RetrieveCommonFriends("user1@example.com", "user2@example.com")
 		assert.Nil(t, commonFriends)
@@ -424,8 +424,8 @@ func TestSubscriptionService_RetrieveCommonFriends(t *testing.T) {
 
 		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
 		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIdsOfUser1, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(2)).Return(nil, repoErr)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIdsOfUser1, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(2)).Return(nil, repoErr)
 
 		commonFriends, err := service.RetrieveCommonFriends("user1@example.com", "user2@example.com")
 		assert.Nil(t, commonFriends)
@@ -442,8 +442,8 @@ func TestSubscriptionService_RetrieveCommonFriends(t *testing.T) {
 
 		mockUserRepo.EXPECT().GetUserByEmail("user1@example.com").Return(user1, nil)
 		mockUserRepo.EXPECT().GetUserByEmail("user2@example.com").Return(user2, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(1)).Return(friendIdsOfUser1, nil)
-		mockFriendshipRepo.EXPECT().RetrieveFriendsList(int64(2)).Return(friendIdsOfUser2, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return(friendIdsOfUser1, nil)
+		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(2)).Return(friendIdsOfUser2, nil)
 		mockUserRepo.EXPECT().GetUserById(int64(3)).Return(nil, repoErr)
 
 		commonFriends, err := service.RetrieveCommonFriends("user1@example.com", "user2@example.com")

@@ -2,6 +2,7 @@ package service
 
 import (
 	block_relationship "BE_Friends_Management/internal/repository/block_relationship"
+	friendship "BE_Friends_Management/internal/repository/friendship"
 	subscription "BE_Friends_Management/internal/repository/subscription"
 	user "BE_Friends_Management/internal/repository/users"
 	"errors"
@@ -19,43 +20,60 @@ type SubscriptionService interface {
 type subscriptionService struct {
 	repo                  subscription.SubscriptionRepository
 	userRepo              user.UserRepository
+	friendshipRepo        friendship.FriendshipRepository
 	blockRelationshipRepo block_relationship.BlockRelationshipRepository
 }
 
-func NewSubscriptionService(repo subscription.SubscriptionRepository, userRepo user.UserRepository, blockRelationshipRepo block_relationship.BlockRelationshipRepository) SubscriptionService {
+func NewSubscriptionService(repo subscription.SubscriptionRepository, userRepo user.UserRepository, friendshipRepo friendship.FriendshipRepository, blockRelationshipRepo block_relationship.BlockRelationshipRepository) SubscriptionService {
 	return &subscriptionService{
 		repo:                  repo,
 		userRepo:              userRepo,
+		friendshipRepo:        friendshipRepo,
 		blockRelationshipRepo: blockRelationshipRepo,
 	}
 }
 
 func (service *subscriptionService) CreateSubscription(requestorEmail, targetEmail string) error {
-	user1, err := service.userRepo.GetUserByEmail(requestorEmail)
+	requestor, err := service.userRepo.GetUserByEmail(requestorEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
 	}
 	if err != nil {
 		return err
 	}
-	user2, err := service.userRepo.GetUserByEmail(targetEmail)
+	target, err := service.userRepo.GetUserByEmail(targetEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
 	}
 	if err != nil {
 		return err
 	}
-	if user1.Id == user2.Id {
+	if requestor.Id == target.Id {
 		return ErrInvalidRequest
 	}
-	_, err = service.blockRelationshipRepo.GetBlockRelationship(user1.Id, user2.Id)
+	_, err = service.blockRelationshipRepo.GetBlockRelationship(requestor.Id, target.Id)
 	if err == nil {
-		return ErrIsBlocked
+		userId1 := requestor.Id
+		userId2 := target.Id
+		if userId1 > userId2 {
+			userId1, userId2 = userId2, userId1
+		}
+		_, err := service.friendshipRepo.GetFriendship(userId1, userId2)
+		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrIsBlocked
+		}
+		if err != nil {
+			return err
+		}
+		err = service.blockRelationshipRepo.DeleteBlockRelationship(requestor.Id, target.Id)
+		if err != nil {
+			return err
+		}
 	}
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
-	err = service.repo.CreateSubscription(user1.Id, user2.Id)
+	err = service.repo.CreateSubscription(requestor.Id, target.Id)
 	if err != nil && strings.Contains(err.Error(), "duplicate key") {
 		return ErrAlreadySubscribed
 	}
