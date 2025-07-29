@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: golang-backend
+    ports:
+      - "8080:8080"
+    environment:
+    - PORT=8080
+    - APPLICATION_NAME=Friends Management
+    - DATABASE_URL=host=postgres user=postgres password=postgres dbname=friends_management port=5432 sslmode=disable
+    - LOG_LEVEL=DEBUG
+    - BASE_URL_BACKEND=http://localhost:8080/
+    - BASE_URL_BACKEND_FOR_SWAGGER=localhost:8080/
+    depends_on:
+      - postgres
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:14
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: friends_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
