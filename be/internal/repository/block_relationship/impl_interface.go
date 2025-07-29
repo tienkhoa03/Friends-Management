@@ -20,15 +20,24 @@ func (r *PostgreSQLBlockRelationshipRepository) GetDB() *gorm.DB {
 
 func (r *PostgreSQLBlockRelationshipRepository) CreateBlockRelationship(tx *gorm.DB, requestorId, targetId int64) error {
 	newBlockRelationship := entity.BlockRelationship{RequestorId: requestorId, TargetId: targetId}
-	err := tx.Model(entity.BlockRelationship{}).Create(&newBlockRelationship).Error
+	err := tx.Model(&entity.BlockRelationship{}).Create(&newBlockRelationship).Error
 	return err
 }
 
 func (r *PostgreSQLBlockRelationshipRepository) GetBlockRelationship(requestorId, targetId int64) (*entity.BlockRelationship, error) {
 	blockRelationship := entity.BlockRelationship{RequestorId: requestorId, TargetId: targetId}
-	err := r.db.Model(entity.BlockRelationship{}).First(&blockRelationship).Error
+	err := r.db.Model(&entity.BlockRelationship{}).First(&blockRelationship).Error
 	if err != nil {
 		return nil, err
 	}
 	return &blockRelationship, nil
+}
+
+func (r *PostgreSQLBlockRelationshipRepository) GetBlockRequestorIds(targetId int64) ([]int64, error) {
+	var requestorIds []int64
+	err := r.db.Model(&entity.BlockRelationship{}).Where("target_id = ?", targetId).Pluck("requestor_id", &requestorIds).Error
+	if err != nil {
+		return nil, err
+	}
+	return requestorIds, nil
 }

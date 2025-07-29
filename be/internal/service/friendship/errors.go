@@ -3,8 +3,8 @@ package service
 import "errors"
 
 var (
-	ErrUserNotFound   = errors.New("User not found")
-	ErrAlreadyFriend  = errors.New("Users are already friends")
-	ErrInvalidRequest = errors.New("Two email can not be the same")
-	ErrIsBlocked      = errors.New("One user has blocked another")
+	ErrUserNotFound   = errors.New("user not found")
+	ErrAlreadyFriend  = errors.New("users are already friends")
+	ErrInvalidRequest = errors.New("two email can not be the same")
+	ErrIsBlocked      = errors.New("one user has blocked another")
 )

@@ -85,7 +85,7 @@ func (service *friendshipService) RetrieveFriendsList(email string) ([]*entity.U
 	if err != nil {
 		return nil, err
 	}
-	friendIds, err := service.repo.RetrieveFriendsList(user.Id)
+	friendIds, err := service.repo.RetrieveFriendIds(user.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -118,11 +118,11 @@ func (service *friendshipService) RetrieveCommonFriends(email1, email2 string) (
 	if user1.Id == user2.Id {
 		return nil, ErrInvalidRequest
 	}
-	friendIdsOfUser1, err := service.repo.RetrieveFriendsList(user1.Id)
+	friendIdsOfUser1, err := service.repo.RetrieveFriendIds(user1.Id)
 	if err != nil {
 		return nil, err
 	}
-	friendIdsOfUser2, err := service.repo.RetrieveFriendsList(user2.Id)
+	friendIdsOfUser2, err := service.repo.RetrieveFriendIds(user2.Id)
 	if err != nil {
 		return nil, err
 	}

@@ -64,11 +64,12 @@ func (mr *MockUserServiceMockRecorder) DeleteUserById(userId interface{}) *gomoc
 }
 
 // GetAllUser mocks base method.
-func (m *MockUserService) GetAllUser() []*entity.User {
+func (m *MockUserService) GetAllUser() ([]*entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllUser")
 	ret0, _ := ret[0].([]*entity.User)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetAllUser indicates an expected call of GetAllUser.

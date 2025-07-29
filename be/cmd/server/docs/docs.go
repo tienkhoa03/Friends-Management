@@ -188,6 +188,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/update-recipients": {
+            "post": {
+                "description": "Get all email addresses that can receive updates from an email address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Get update recipients",
+                "parameters": [
+                    {
+                        "description": "Sender email and update text",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetUpdateRecipientsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
                 "description": "Get all user",
@@ -420,6 +454,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "target": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GetUpdateRecipientsRequest": {
+            "type": "object",
+            "required": [
+                "sender",
+                "text"
+            ],
+            "properties": {
+                "sender": {
+                    "type": "string"
+                },
+                "text": {
                     "type": "string"
                 }
             }

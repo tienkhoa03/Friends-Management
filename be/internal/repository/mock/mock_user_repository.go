@@ -65,11 +65,12 @@ func (mr *MockUserRepositoryMockRecorder) DeleteUserById(userId interface{}) *go
 }
 
 // GetAllUser mocks base method.
-func (m *MockUserRepository) GetAllUser() []*entity.User {
+func (m *MockUserRepository) GetAllUser() ([]*entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllUser")
 	ret0, _ := ret[0].([]*entity.User)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetAllUser indicates an expected call of GetAllUser.
@@ -120,6 +121,36 @@ func (m *MockUserRepository) GetUserById(userId int64) (*entity.User, error) {
 func (mr *MockUserRepositoryMockRecorder) GetUserById(userId interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserById", reflect.TypeOf((*MockUserRepository)(nil).GetUserById), userId)
+}
+
+// GetUserFromIds mocks base method.
+func (m *MockUserRepository) GetUserFromIds(userIds []int64) ([]*entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserFromIds", userIds)
+	ret0, _ := ret[0].([]*entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserFromIds indicates an expected call of GetUserFromIds.
+func (mr *MockUserRepositoryMockRecorder) GetUserFromIds(userIds interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFromIds", reflect.TypeOf((*MockUserRepository)(nil).GetUserFromIds), userIds)
+}
+
+// GetUsersFromEmails mocks base method.
+func (m *MockUserRepository) GetUsersFromEmails(emails []string) ([]*entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsersFromEmails", emails)
+	ret0, _ := ret[0].([]*entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsersFromEmails indicates an expected call of GetUsersFromEmails.
+func (mr *MockUserRepositoryMockRecorder) GetUsersFromEmails(emails interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersFromEmails", reflect.TypeOf((*MockUserRepository)(nil).GetUsersFromEmails), emails)
 }
 
 // UpdateUser mocks base method.

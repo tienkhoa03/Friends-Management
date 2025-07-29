@@ -64,6 +64,21 @@ func (mr *MockBlockRelationshipRepositoryMockRecorder) GetBlockRelationship(requ
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlockRelationship", reflect.TypeOf((*MockBlockRelationshipRepository)(nil).GetBlockRelationship), requestorId, targetId)
 }
 
+// GetBlockRequestorIds mocks base method.
+func (m *MockBlockRelationshipRepository) GetBlockRequestorIds(targetId int64) ([]int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBlockRequestorIds", targetId)
+	ret0, _ := ret[0].([]int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBlockRequestorIds indicates an expected call of GetBlockRequestorIds.
+func (mr *MockBlockRelationshipRepositoryMockRecorder) GetBlockRequestorIds(targetId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlockRequestorIds", reflect.TypeOf((*MockBlockRelationshipRepository)(nil).GetBlockRequestorIds), targetId)
+}
+
 // GetDB mocks base method.
 func (m *MockBlockRelationshipRepository) GetDB() *gorm.DB {
 	m.ctrl.T.Helper()

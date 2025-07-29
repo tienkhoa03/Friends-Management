@@ -21,7 +21,7 @@ type MockBlockRelationshipService struct {
 }
 
 func (m *MockBlockRelationshipService) CreateBlockRelationship(requestor, target string) error {
-	args := m.Called(requestor, target)
+	args := m.Called(requestor, target) 
 	return args.Error(0)
 }
 

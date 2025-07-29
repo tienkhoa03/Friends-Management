@@ -18,27 +18,45 @@ func (r *PostgreSQLUserRepository) GetDB() *gorm.DB {
 	return r.db
 }
 
-func (r *PostgreSQLUserRepository) GetAllUser() []*entity.User {
+func (r *PostgreSQLUserRepository) GetAllUser() ([]*entity.User, error) {
 	var users = []*entity.User{}
-	result := r.db.Model(entity.User{}).Find(&users)
+	result := r.db.Model(&entity.User{}).Find(&users)
 	if result.Error != nil {
-		return nil
+		return nil, result.Error
 	}
-	return users
+	return users, nil
 }
 
 func (r *PostgreSQLUserRepository) GetUserById(userId int64) (*entity.User, error) {
 	var user = entity.User{}
-	result := r.db.Model(entity.User{}).Where("id = ?", userId).First(&user)
+	result := r.db.Model(&entity.User{}).Where("id = ?", userId).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return &user, nil
 }
 
+func (r *PostgreSQLUserRepository) GetUserFromIds(userIds []int64) ([]*entity.User, error) {
+	var users []*entity.User
+	result := r.db.Model(&entity.User{}).Where("id IN ?", userIds).Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
+}
+
+func (r *PostgreSQLUserRepository) GetUsersFromEmails(emails []string) ([]*entity.User, error) {
+	var users []*entity.User
+	result := r.db.Model(&entity.User{}).Where("email IN ?", emails).Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
+}
+
 func (r *PostgreSQLUserRepository) GetUserByEmail(email string) (*entity.User, error) {
 	var user = entity.User{}
-	result := r.db.Model(entity.User{}).Where("email = ?", email).First(&user)
+	result := r.db.Model(&entity.User{}).Where("email = ?", email).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -51,12 +69,12 @@ func (r *PostgreSQLUserRepository) CreateUser(user *entity.User) (*entity.User, 
 }
 
 func (r *PostgreSQLUserRepository) DeleteUserById(userId int64) error {
-	result := r.db.Model(entity.User{}).Where("id = ?", userId).Delete(entity.User{})
+	result := r.db.Model(&entity.User{}).Where("id = ?", userId).Delete(entity.User{})
 	return result.Error
 }
 
 func (r *PostgreSQLUserRepository) UpdateUser(user *entity.User) (*entity.User, error) {
-	result := r.db.Model(entity.User{}).Where("id = ?", user.Id).Updates(user)
+	result := r.db.Model(&entity.User{}).Where("id = ?", user.Id).Updates(user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

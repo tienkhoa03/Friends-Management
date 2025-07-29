@@ -47,3 +47,10 @@ func BuildReponseSuccessWithFriendsList(friends []string, count int64) dto.ApiRe
 		Count:   count,
 	}
 }
+
+func BuildReponseSuccessWithRecipients(recipients []string) dto.ApiResponseSuccessWithRecipients {
+	return dto.ApiResponseSuccessWithRecipients{
+		Success:    true,
+		Recipients: recipients,
+	}
+}
