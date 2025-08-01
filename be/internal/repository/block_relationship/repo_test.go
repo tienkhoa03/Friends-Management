@@ -127,7 +127,7 @@ func TestPostgreSQLBlockRelationshipRepository_GetBlockRelationship(t *testing.T
 
 		assert.Error(t, err)
 		assert.Nil(t, blockRelationship)
-		assert.Equal(t, err, gorm.ErrRecordNotFound)
+		assert.Equal(t, gorm.ErrRecordNotFound, err)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 	t.Run("database error", func(t *testing.T) {
@@ -141,7 +141,7 @@ func TestPostgreSQLBlockRelationshipRepository_GetBlockRelationship(t *testing.T
 
 		assert.Error(t, err)
 		assert.Nil(t, blockRelationship)
-		assert.Equal(t, err, gorm.ErrInvalidDB)
+		assert.Equal(t, gorm.ErrInvalidDB, err)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }
