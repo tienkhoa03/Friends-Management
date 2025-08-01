@@ -89,7 +89,7 @@ func (service *notificationService) GetUpdateRecipients(senderEmail, text string
 			recipientIds = append(recipientIds, recipientId)
 		}
 	}
-	recipients, err := service.userRepo.GetUserFromIds(recipientIds)
+	recipients, err := service.userRepo.GetUsersFromIds(recipientIds)
 	if err != nil {
 		return nil, err
 	}

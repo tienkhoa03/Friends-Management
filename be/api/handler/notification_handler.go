@@ -47,5 +47,5 @@ func (h *NotificationHandler) GetUpdateRecipients(c *gin.Context) {
 		}
 	}
 	recipientEmails := utils.ConvertUsersToEmails(recipients)
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessWithRecipients(recipientEmails))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessWithRecipients(recipientEmails))
 }

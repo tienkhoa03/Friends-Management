@@ -34,7 +34,7 @@ func (h *UserHandler) GetAllUser(c *gin.Context) {
 		log.Error("Happened error when getting all users. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when getting all users")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, users))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, users))
 }
 
 // User godoc
@@ -59,7 +59,7 @@ func (h *UserHandler) GetUserById(c *gin.Context) {
 		log.Error("Happened error when getting the user by ID. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when getting the user by ID")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, user))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, user))
 }
 
 // User godoc
@@ -79,7 +79,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		log.Error("Happened error when creating new user. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when creating new user")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, newUser))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newUser))
 }
 
 // User godoc
@@ -104,7 +104,7 @@ func (h *UserHandler) DeleteUserById(c *gin.Context) {
 		log.Error("Happened error when deleting a user. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when deleting a user")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessNoData())
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }
 
 // User godoc
@@ -131,5 +131,5 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		log.Error("Happened error when updating user. Error: ", err)
 		pkg.PanicExeption(constant.UnknownError, "Happened error when updating a user")
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccess(constant.Success, updatedUser))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, updatedUser))
 }

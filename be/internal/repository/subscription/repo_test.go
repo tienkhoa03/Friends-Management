@@ -160,7 +160,7 @@ func TestPostgreSQLSubscriptionRepository_GetSubscription(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, subscription)
-		assert.Equal(t, err, gorm.ErrRecordNotFound)
+		assert.Equal(t, gorm.ErrRecordNotFound, err)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 	t.Run("database error", func(t *testing.T) {
@@ -174,7 +174,7 @@ func TestPostgreSQLSubscriptionRepository_GetSubscription(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, subscription)
-		assert.Equal(t, err, gorm.ErrInvalidDB)
+		assert.Equal(t, gorm.ErrInvalidDB, err)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }

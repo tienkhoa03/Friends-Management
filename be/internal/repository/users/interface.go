@@ -13,9 +13,9 @@ type UserRepository interface {
 	CreateUser(user *entity.User) (*entity.User, error)
 	GetAllUser() ([]*entity.User, error)
 	GetUserById(userId int64) (*entity.User, error)
-	GetUserFromIds(userIds []int64) ([]*entity.User, error)
-	GetUsersFromEmails(emails []string) ([]*entity.User, error)
 	GetUserByEmail(email string) (*entity.User, error)
+	GetUsersFromIds(userIds []int64) ([]*entity.User, error)
+	GetUsersFromEmails(emails []string) ([]*entity.User, error)
 	UpdateUser(user *entity.User) (*entity.User, error)
 	DeleteUserById(userId int64) error
 }

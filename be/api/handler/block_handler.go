@@ -51,5 +51,5 @@ func (h *BlockRelationshipHandler) CreateBlockRelationship(c *gin.Context) {
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new block relationship.")
 		}
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessNoData())
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }
