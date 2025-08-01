@@ -57,22 +57,22 @@ func PanicHandler(c *gin.Context) {
 		msg := capitalizeFirst(strings.Trim(strArr[1], " "))
 		switch key {
 		case constant.InvalidRequest.GetResponseStatus():
-			c.JSON(http.StatusBadRequest, BuildReponseFail(msg))
+			c.JSON(http.StatusBadRequest, BuildResponseFail(msg))
 			c.Abort()
 		case constant.DataNotFound.GetResponseStatus():
-			c.JSON(http.StatusNotFound, BuildReponseFail(msg))
+			c.JSON(http.StatusNotFound, BuildResponseFail(msg))
 			c.Abort()
 		case constant.Unauthorized.GetResponseStatus():
-			c.JSON(http.StatusUnauthorized, BuildReponseFail(msg))
+			c.JSON(http.StatusUnauthorized, BuildResponseFail(msg))
 			c.Abort()
 		case constant.StatusForbidden.GetResponseStatus():
-			c.JSON(http.StatusForbidden, BuildReponseFail(msg))
+			c.JSON(http.StatusForbidden, BuildResponseFail(msg))
 			c.Abort()
 		case constant.Conflict.GetResponseStatus():
-			c.JSON(http.StatusConflict, BuildReponseFail(msg))
+			c.JSON(http.StatusConflict, BuildResponseFail(msg))
 			c.Abort()
 		default:
-			c.JSON(http.StatusInternalServerError, BuildReponseFail(msg))
+			c.JSON(http.StatusInternalServerError, BuildResponseFail(msg))
 			c.Abort()
 		}
 	}

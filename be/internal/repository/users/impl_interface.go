@@ -36,7 +36,7 @@ func (r *PostgreSQLUserRepository) GetUserById(userId int64) (*entity.User, erro
 	return &user, nil
 }
 
-func (r *PostgreSQLUserRepository) GetUserFromIds(userIds []int64) ([]*entity.User, error) {
+func (r *PostgreSQLUserRepository) GetUsersFromIds(userIds []int64) ([]*entity.User, error) {
 	var users []*entity.User
 	result := r.db.Model(&entity.User{}).Where("id IN ?", userIds).Find(&users)
 	if result.Error != nil {
@@ -65,6 +65,9 @@ func (r *PostgreSQLUserRepository) GetUserByEmail(email string) (*entity.User, e
 
 func (r *PostgreSQLUserRepository) CreateUser(user *entity.User) (*entity.User, error) {
 	result := r.db.Create(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
 	return user, result.Error
 }
 
