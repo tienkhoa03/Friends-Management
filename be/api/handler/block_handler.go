@@ -5,6 +5,7 @@ import (
 	"BE_Friends_Management/internal/domain/dto"
 	service "BE_Friends_Management/internal/service/block_relationship"
 	"BE_Friends_Management/pkg"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -38,14 +39,14 @@ func (h *BlockRelationshipHandler) CreateBlockRelationship(c *gin.Context) {
 	err := h.service.CreateBlockRelationship(request.Requestor, request.Target)
 	if err != nil {
 		log.Error("Happened error when creating new block relationship. Error: ", err)
-		switch err {
-		case service.ErrInvalidRequest:
+		switch {
+		case errors.Is(err, service.ErrInvalidRequest):
 			pkg.PanicExeption(constant.InvalidRequest, err.Error())
-		case service.ErrUserNotFound:
+		case errors.Is(err, service.ErrUserNotFound):
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
-		case service.ErrAlreadyBlocked:
+		case errors.Is(err, service.ErrAlreadyBlocked):
 			pkg.PanicExeption(constant.Conflict, err.Error())
-		case service.ErrNotSubscribed:
+		case errors.Is(err, service.ErrNotSubscribed):
 			pkg.PanicExeption(constant.StatusForbidden, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new block relationship.")
