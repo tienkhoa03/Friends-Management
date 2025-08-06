@@ -51,5 +51,5 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new subscription.")
 		}
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessNoData())
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }

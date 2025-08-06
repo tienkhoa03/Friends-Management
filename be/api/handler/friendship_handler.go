@@ -52,7 +52,7 @@ func (h *FriendshipHandler) CreateFriendship(c *gin.Context) {
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new friendship.")
 		}
 	}
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessNoData())
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }
 
 // User godoc
@@ -84,7 +84,7 @@ func (h *FriendshipHandler) RetrieveFriendsList(c *gin.Context) {
 	}
 	emails := utils.ConvertUsersToEmails(friends)
 	count := h.service.CountFriends(friends)
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessWithFriendsList(emails, count))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessWithFriendsList(emails, count))
 }
 
 // User godoc
@@ -125,5 +125,5 @@ func (h *FriendshipHandler) RetrieveCommonFriends(c *gin.Context) {
 	}
 	emails := utils.ConvertUsersToEmails(friends)
 	count := h.service.CountFriends(friends)
-	c.JSON(http.StatusOK, pkg.BuildReponseSuccessWithFriendsList(emails, count))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessWithFriendsList(emails, count))
 }

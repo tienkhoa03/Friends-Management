@@ -33,7 +33,7 @@ func TestNotificationService_GetUpdateRecipients(t *testing.T) {
 		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return([]int64{2}, nil)
 		mockSubscriptionRepo.EXPECT().GetAllSubscriberIds(int64(1)).Return([]int64{3}, nil)
 		mockUserRepo.EXPECT().GetUsersFromEmails([]string{"mentioned@example.com"}).Return([]*entity.User{mentioned}, nil)
-		mockUserRepo.EXPECT().GetUserFromIds(gomock.Any()).Return([]*entity.User{friend, subscriber, mentioned}, nil)
+		mockUserRepo.EXPECT().GetUsersFromIds(gomock.Any()).Return([]*entity.User{friend, subscriber, mentioned}, nil)
 
 		recipients, err := service.GetUpdateRecipients("sender@example.com", "Hello mentioned@example.com")
 		assert.NoError(t, err)
@@ -111,7 +111,7 @@ func TestNotificationService_GetUpdateRecipients(t *testing.T) {
 		assert.Equal(t, dbErr, err)
 	})
 
-	t.Run("ErrorOnGetUserFromIds", func(t *testing.T) {
+	t.Run("ErrorOnGetUsersFromIds", func(t *testing.T) {
 		sender := &entity.User{Id: 1, Email: "sender@example.com"}
 		mentioned := &entity.User{Id: 2, Email: "mentioned@example.com"}
 		dbErr := errors.New("database error")
@@ -121,7 +121,7 @@ func TestNotificationService_GetUpdateRecipients(t *testing.T) {
 		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return([]int64{}, nil)
 		mockSubscriptionRepo.EXPECT().GetAllSubscriberIds(int64(1)).Return([]int64{}, nil)
 		mockUserRepo.EXPECT().GetUsersFromEmails([]string{"mentioned@example.com"}).Return([]*entity.User{mentioned}, nil)
-		mockUserRepo.EXPECT().GetUserFromIds(gomock.Any()).Return(nil, dbErr)
+		mockUserRepo.EXPECT().GetUsersFromIds(gomock.Any()).Return(nil, dbErr)
 
 		recipients, err := service.GetUpdateRecipients("sender@example.com", "Hello mentioned@example.com")
 		assert.Nil(t, recipients)
@@ -138,7 +138,7 @@ func TestNotificationService_GetUpdateRecipients(t *testing.T) {
 		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return([]int64{2}, nil)
 		mockSubscriptionRepo.EXPECT().GetAllSubscriberIds(int64(1)).Return([]int64{3}, nil)
 		mockUserRepo.EXPECT().GetUsersFromEmails(gomock.Any()).Return([]*entity.User{}, nil)
-		mockUserRepo.EXPECT().GetUserFromIds([]int64{2}).Return([]*entity.User{friend}, nil)
+		mockUserRepo.EXPECT().GetUsersFromIds([]int64{2}).Return([]*entity.User{friend}, nil)
 
 		recipients, err := service.GetUpdateRecipients("sender@example.com", "Hello world")
 		assert.NoError(t, err)
@@ -155,7 +155,7 @@ func TestNotificationService_GetUpdateRecipients(t *testing.T) {
 		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return([]int64{2}, nil)
 		mockSubscriptionRepo.EXPECT().GetAllSubscriberIds(int64(1)).Return([]int64{}, nil)
 		mockUserRepo.EXPECT().GetUsersFromEmails(gomock.Any()).Return([]*entity.User{}, nil)
-		mockUserRepo.EXPECT().GetUserFromIds([]int64{2}).Return([]*entity.User{friend}, nil)
+		mockUserRepo.EXPECT().GetUsersFromIds([]int64{2}).Return([]*entity.User{friend}, nil)
 
 		recipients, err := service.GetUpdateRecipients("sender@example.com", "Hello world no emails")
 		assert.NoError(t, err)
@@ -170,7 +170,7 @@ func TestNotificationService_GetUpdateRecipients(t *testing.T) {
 		mockFriendshipRepo.EXPECT().RetrieveFriendIds(int64(1)).Return([]int64{}, nil)
 		mockSubscriptionRepo.EXPECT().GetAllSubscriberIds(int64(1)).Return([]int64{}, nil)
 		mockUserRepo.EXPECT().GetUsersFromEmails(gomock.Any()).Return([]*entity.User{}, nil)
-		mockUserRepo.EXPECT().GetUserFromIds([]int64{}).Return([]*entity.User{}, nil)
+		mockUserRepo.EXPECT().GetUsersFromIds([]int64{}).Return([]*entity.User{}, nil)
 
 		recipients, err := service.GetUpdateRecipients("sender@example.com", "Hello world")
 		assert.NoError(t, err)

@@ -123,21 +123,6 @@ func (mr *MockUserRepositoryMockRecorder) GetUserById(userId interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserById", reflect.TypeOf((*MockUserRepository)(nil).GetUserById), userId)
 }
 
-// GetUserFromIds mocks base method.
-func (m *MockUserRepository) GetUserFromIds(userIds []int64) ([]*entity.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserFromIds", userIds)
-	ret0, _ := ret[0].([]*entity.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUserFromIds indicates an expected call of GetUserFromIds.
-func (mr *MockUserRepositoryMockRecorder) GetUserFromIds(userIds interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserFromIds", reflect.TypeOf((*MockUserRepository)(nil).GetUserFromIds), userIds)
-}
-
 // GetUsersFromEmails mocks base method.
 func (m *MockUserRepository) GetUsersFromEmails(emails []string) ([]*entity.User, error) {
 	m.ctrl.T.Helper()
@@ -151,6 +136,21 @@ func (m *MockUserRepository) GetUsersFromEmails(emails []string) ([]*entity.User
 func (mr *MockUserRepositoryMockRecorder) GetUsersFromEmails(emails interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersFromEmails", reflect.TypeOf((*MockUserRepository)(nil).GetUsersFromEmails), emails)
+}
+
+// GetUsersFromIds mocks base method.
+func (m *MockUserRepository) GetUsersFromIds(userIds []int64) ([]*entity.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUsersFromIds", userIds)
+	ret0, _ := ret[0].([]*entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUsersFromIds indicates an expected call of GetUsersFromIds.
+func (mr *MockUserRepositoryMockRecorder) GetUsersFromIds(userIds interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersFromIds", reflect.TypeOf((*MockUserRepository)(nil).GetUsersFromIds), userIds)
 }
 
 // UpdateUser mocks base method.

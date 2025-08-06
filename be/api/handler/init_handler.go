@@ -10,6 +10,7 @@ type Handlers struct {
 	Subscription        *SubscriptionHandler
 	BlockRelationship   *BlockRelationshipHandler
 	NotificationHandler *NotificationHandler
+	AuthHandler         *AuthHandler
 }
 
 func NewHandlers(services *service.Service) *Handlers {
@@ -19,5 +20,6 @@ func NewHandlers(services *service.Service) *Handlers {
 		Subscription:        NewSubscriptionHandler(services.Subscription),
 		BlockRelationship:   NewBlockRelationshipHandler(services.BlockRelationship),
 		NotificationHandler: NewNotificationHandler(services.Notification),
+		AuthHandler:         NewAuthHandler(services.Auth),
 	}
 }
