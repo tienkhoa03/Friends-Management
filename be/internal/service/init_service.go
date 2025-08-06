@@ -2,6 +2,7 @@ package service
 
 import (
 	repository "BE_Friends_Management/internal/repository"
+	auth "BE_Friends_Management/internal/service/auth"
 	block_relationship "BE_Friends_Management/internal/service/block_relationship"
 	friendship "BE_Friends_Management/internal/service/friendship"
 	notification "BE_Friends_Management/internal/service/notification"
@@ -15,6 +16,7 @@ type Service struct {
 	Subscription      subscription.SubscriptionService
 	BlockRelationship block_relationship.BlockRelationshipService
 	Notification      notification.NotificationService
+	Auth              auth.AuthService
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -24,5 +26,6 @@ func NewService(repos *repository.Repository) *Service {
 		Subscription:      subscription.NewSubscriptionService(repos.Subscription, repos.User, repos.Friendship, repos.BlockRelationship),
 		BlockRelationship: block_relationship.NewBlockRelationshipService(repos.BlockRelationship, repos.User, repos.Friendship, repos.Subscription),
 		Notification:      notification.NewNotificationService(repos.BlockRelationship, repos.User, repos.Friendship, repos.Subscription),
+		Auth:              auth.NewAuthService(repos.Auth, repos.User),
 	}
 }
