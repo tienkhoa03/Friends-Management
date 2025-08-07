@@ -31,6 +31,17 @@ type ApiResponseSuccessWithFriendsList struct {
 }
 
 type ApiResponseSuccessWithRecipients struct {
-	Success bool     `json:"success"`
+	Success    bool     `json:"success"`
 	Recipients []string `json:"recipients"`
+}
+
+type ApiResponseSuccessWithTokens struct {
+	Success      bool   `json:"success"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+type ApiResponseSuccessWithAccessToken struct {
+	Success     bool   `json:"success"`
+	AccessToken string `json:"access_token"`
 }

@@ -18,4 +18,5 @@ func SetupRoutes(r *gin.Engine, handlers *handler.Handlers, db *gorm.DB) {
 	registerSubscriptionRoutes(api, handlers.Subscription, db)
 	registerBlockRoutes(api, handlers.BlockRelationship, db)
 	registerNotificationRoutes(api, handlers.NotificationHandler, db)
+	registerAuthRoutes(api, handlers.AuthHandler, db)
 }

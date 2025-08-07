@@ -54,3 +54,18 @@ func BuildResponseSuccessWithRecipients(recipients []string) dto.ApiResponseSucc
 		Recipients: recipients,
 	}
 }
+
+func BuildResponseSuccessWithTokens(accessToken, refreshToken string) dto.ApiResponseSuccessWithTokens {
+	return dto.ApiResponseSuccessWithTokens{
+		Success:      true,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+}
+
+func BuildResponseSuccessWithAccessToken(accessToken string) dto.ApiResponseSuccessWithAccessToken {
+	return dto.ApiResponseSuccessWithAccessToken{
+		Success:     true,
+		AccessToken: accessToken,
+	}
+}
