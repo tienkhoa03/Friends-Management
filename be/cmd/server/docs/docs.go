@@ -49,9 +49,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/refresh": {
+        "/api/auth/logout": {
             "post": {
-                "description": "Refresh Token",
+                "description": "Logout",
                 "consumes": [
                     "application/json"
                 ],
@@ -61,7 +61,41 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Refresh Token",
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "description": "User's refresh token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LogoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "description": "Refresh Access Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh Access Token",
                 "parameters": [
                     {
                         "description": "User's refresh token",
@@ -591,6 +625,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.LogoutRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
                     "type": "string"
                 }
             }

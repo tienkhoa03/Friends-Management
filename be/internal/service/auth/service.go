@@ -6,9 +6,10 @@ import (
 	users "BE_Friends_Management/internal/repository/users"
 	"BE_Friends_Management/pkg/utils"
 	"errors"
-	"gorm.io/gorm"
 	"strings"
 	"time"
+
+	"gorm.io/gorm"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,6 +20,7 @@ type AuthService interface {
 	RegisterUser(email, password string) (*entity.User, error)
 	Login(email, password string) (string, string, error)
 	RefreshAccessToken(rawRefreshToken string) (string, error)
+	Logout(rawRefreshToken string) error
 }
 
 type authService struct {
@@ -55,12 +57,12 @@ func (service *authService) Login(email, password string) (string, string, error
 	if err != nil {
 		return "", "", ErrInvalidLoginRequest
 	}
-	accessTokenExpiredTime := time.Now().Add(time.Hour)
+	accessTokenExpiredTime := time.Now().Add(utils.AccessTokenExpiredTime)
 	accessToken, err := utils.GenerateAccessToken(user.Id, accessTokenExpiredTime)
 	if err != nil {
 		return "", "", err
 	}
-	refreshTokenExpiredTime := time.Now().Add(10 * 24 * time.Hour)
+	refreshTokenExpiredTime := time.Now().Add(utils.RefreshTokenExpiredTime)
 	refreshToken, err := utils.GenerateRefreshToken(user.Id, refreshTokenExpiredTime)
 	if err != nil {
 		return "", "", err
@@ -86,7 +88,7 @@ func (service *authService) RefreshAccessToken(rawRefreshToken string) (string, 
 	if err != nil {
 		return "", err
 	}
-	if userToken.IsRevoked == true {
+	if userToken.IsRevoked {
 		return "", ErrRefreshTokenIsRevoked
 	}
 	claims, err := utils.ParseRefreshToken(rawRefreshToken)
@@ -102,9 +104,40 @@ func (service *authService) RefreshAccessToken(rawRefreshToken string) (string, 
 	if claims.ExpiresAt.Time.Before(time.Now()) {
 		return "", ErrRefreshTokenExpires
 	}
-	accessToken, err := utils.GenerateAccessToken(userToken.UserId, time.Now().Add(time.Hour))
+	accessToken, err := utils.GenerateAccessToken(userToken.UserId, time.Now().Add(utils.AccessTokenExpiredTime))
 	if err != nil {
 		return "", err
 	}
 	return accessToken, nil
+}
+
+func (service *authService) Logout(rawRefreshToken string) error {
+	userToken, err := service.repo.FindByRefreshToken(rawRefreshToken)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrInvalidRefreshToken
+	}
+	if err != nil {
+		return err
+	}
+	if userToken.IsRevoked {
+		return ErrRefreshTokenIsRevoked
+	}
+	claims, err := utils.ParseRefreshToken(rawRefreshToken)
+	if errors.Is(err, utils.ErrInvalidRefreshRequest) {
+		return ErrInvalidRefreshToken
+	}
+	if errors.Is(err, utils.ErrInvalidSigningMethod) {
+		return ErrInvalidSigningMethod
+	}
+	if err != nil {
+		return err
+	}
+	if claims.ExpiresAt.Time.Before(time.Now()) {
+		return ErrRefreshTokenExpires
+	}
+	err = service.repo.SetRefreshTokenIsRevoked(rawRefreshToken)
+	if err != nil {
+		return err
+	}
+	return nil
 }

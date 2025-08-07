@@ -27,3 +27,8 @@ func (r *PostgreSQLAuthRepository) FindByRefreshToken(refreshToken string) (*ent
 	}
 	return &userToken, nil
 }
+
+func (r *PostgreSQLAuthRepository) SetRefreshTokenIsRevoked(refreshToken string) error {
+	err := r.db.Model(&entity.UserToken{}).Where("refresh_token = ?", refreshToken).Update("is_revoked", true).Error
+	return err
+}

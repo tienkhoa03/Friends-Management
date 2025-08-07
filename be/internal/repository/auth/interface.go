@@ -9,4 +9,5 @@ import (
 type AuthRepository interface {
 	CreateToken(token *entity.UserToken) error
 	FindByRefreshToken(refreshToken string) (*entity.UserToken, error)
+	SetRefreshTokenIsRevoked(refreshToken string) error
 }

@@ -73,6 +73,13 @@ definitions:
     - email
     - password
     type: object
+  dto.LogoutRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
   dto.RefreshRequest:
     properties:
       refresh_token:
@@ -105,11 +112,33 @@ paths:
       summary: Login
       tags:
       - Auth
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
+      parameters:
+      - description: User's refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Logout
+      tags:
+      - Auth
   /api/auth/refresh:
     post:
       consumes:
       - application/json
-      description: Refresh Token
+      description: Refresh Access Token
       parameters:
       - description: User's refresh token
         in: body
@@ -124,7 +153,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      summary: Refresh Token
+      summary: Refresh Access Token
       tags:
       - Auth
   /api/auth/register:

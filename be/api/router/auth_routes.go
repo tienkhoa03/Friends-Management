@@ -11,4 +11,5 @@ func registerAuthRoutes(api *gin.RouterGroup, h *handler.AuthHandler, db *gorm.D
 	api.POST("/auth/register", h.RegisterUser)
 	api.POST("/auth/login", h.Login)
 	api.POST("/auth/refresh", h.RefreshAccessToken)
+	api.POST("auth/logout", h.Logout)
 }
