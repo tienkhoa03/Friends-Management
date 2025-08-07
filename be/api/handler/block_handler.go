@@ -20,7 +20,7 @@ func NewBlockRelationshipHandler(service service.BlockRelationshipService) *Bloc
 	return &BlockRelationshipHandler{service: service}
 }
 
-// User godoc
+// Block godoc
 // @Summary      Create new block relationship
 // @Description  Create new block relationship
 // @Tags         BlockRelationship

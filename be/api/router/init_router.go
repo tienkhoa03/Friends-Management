@@ -13,10 +13,11 @@ func SetupRoutes(r *gin.Engine, handlers *handler.Handlers, db *gorm.DB) {
 	r.Use(middleware.CORSMiddleware())
 	r.Use(middleware.TimeoutMiddleware(5 * time.Second))
 	api := r.Group("/api")
+	authApi := r.Group("/api")
 	registerUserRoutes(api, handlers.User, db)
 	registerFriendshipRoutes(api, handlers.Friendship, db)
 	registerSubscriptionRoutes(api, handlers.Subscription, db)
 	registerBlockRoutes(api, handlers.BlockRelationship, db)
 	registerNotificationRoutes(api, handlers.NotificationHandler, db)
-	registerAuthRoutes(api, handlers.AuthHandler, db)
+	registerAuthRoutes(authApi, handlers.AuthHandler, db)
 }

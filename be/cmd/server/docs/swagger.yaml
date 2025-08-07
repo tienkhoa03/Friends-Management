@@ -89,6 +89,9 @@ definitions:
     type: object
 info:
   contact: {}
+  description: Friends Management API
+  title: Friends Management API
+  version: "1.0"
 paths:
   /api/auth/login:
     post:
@@ -216,6 +219,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.CreateFriendshipRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -223,6 +231,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
       summary: Create new friendship
       tags:
       - Friendship
@@ -242,6 +252,11 @@ paths:
         name: email2
         required: true
         type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -249,6 +264,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessWithFriendsList'
+      security:
+      - JWT: []
       summary: Retrieve common friends list between two email addresses
       tags:
       - Friendship
@@ -263,6 +280,11 @@ paths:
         name: email
         required: true
         type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -270,6 +292,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessWithFriendsList'
+      security:
+      - JWT: []
       summary: Retrieve friends list for an email address
       tags:
       - Friendship
@@ -419,4 +443,7 @@ paths:
       summary: Update user
       tags:
       - Users
+schemes:
+- http
+- https
 swagger: "2.0"

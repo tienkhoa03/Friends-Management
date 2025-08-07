@@ -2,15 +2,9 @@ package utils
 
 import (
 	"BE_Friends_Management/config"
-	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-)
-
-var (
-	ErrInvalidSigningMethod  = errors.New("unexpected signing method")
-	ErrInvalidRefreshRequest = errors.New("invalid refresh token")
 )
 
 const (
@@ -53,6 +47,23 @@ func GenerateRefreshToken(userId int64, expiredTime time.Time) (string, error) {
 	return refreshString, nil
 }
 
+func ParseAccessToken(rawAccessToken string) (*Claims, error) {
+	accessToken, err := jwt.ParseWithClaims(rawAccessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, ErrInvalidSigningMethod
+		}
+		return []byte(config.AccessSecret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := accessToken.Claims.(*Claims)
+	if !ok || !accessToken.Valid {
+		return nil, ErrInvalidAccessToken
+	}
+	return claims, nil
+}
+
 func ParseRefreshToken(rawRefreshToken string) (*Claims, error) {
 	refreshToken, err := jwt.ParseWithClaims(rawRefreshToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -65,7 +76,7 @@ func ParseRefreshToken(rawRefreshToken string) (*Claims, error) {
 	}
 	claims, ok := refreshToken.Claims.(*Claims)
 	if !ok || !refreshToken.Valid {
-		return nil, ErrInvalidRefreshRequest
+		return nil, ErrInvalidRefreshToken
 	}
 	return claims, nil
 }

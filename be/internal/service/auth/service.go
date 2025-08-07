@@ -92,7 +92,7 @@ func (service *authService) RefreshAccessToken(rawRefreshToken string) (string, 
 		return "", ErrRefreshTokenIsRevoked
 	}
 	claims, err := utils.ParseRefreshToken(rawRefreshToken)
-	if errors.Is(err, utils.ErrInvalidRefreshRequest) {
+	if errors.Is(err, utils.ErrInvalidRefreshToken) {
 		return "", ErrInvalidRefreshToken
 	}
 	if errors.Is(err, utils.ErrInvalidSigningMethod) {
@@ -123,7 +123,7 @@ func (service *authService) Logout(rawRefreshToken string) error {
 		return ErrRefreshTokenIsRevoked
 	}
 	claims, err := utils.ParseRefreshToken(rawRefreshToken)
-	if errors.Is(err, utils.ErrInvalidRefreshRequest) {
+	if errors.Is(err, utils.ErrInvalidRefreshToken) {
 		return ErrInvalidRefreshToken
 	}
 	if errors.Is(err, utils.ErrInvalidSigningMethod) {

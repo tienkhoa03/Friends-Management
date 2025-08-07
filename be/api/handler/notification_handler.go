@@ -21,7 +21,7 @@ func NewNotificationHandler(service service.NotificationService) *NotificationHa
 	return &NotificationHandler{service: service}
 }
 
-// User godoc
+// Notification godoc
 // @Summary      Get update recipients
 // @Description  Get all email addresses that can receive updates from an email address.
 // @Tags         Notification

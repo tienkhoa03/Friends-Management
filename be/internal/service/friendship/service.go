@@ -14,9 +14,9 @@ import (
 //go:generate mockgen -source=service.go -destination=../mock/mock_friendship_service.go
 
 type FriendshipService interface {
-	CreateFriendship(email1, email2 string) error
-	RetrieveFriendsList(email string) ([]*entity.User, error)
-	RetrieveCommonFriends(email1, email2 string) ([]*entity.User, error)
+	CreateFriendship(authUserId int64, email1, email2 string) error
+	RetrieveFriendsList(authUserId int64, email string) ([]*entity.User, error)
+	RetrieveCommonFriends(authUserId int64, email1, email2 string) ([]*entity.User, error)
 	CountFriends(friendsList []*entity.User) int64
 }
 
@@ -34,7 +34,7 @@ func NewFriendshipService(repo friendship.FriendshipRepository, userRepo user.Us
 	}
 }
 
-func (service *friendshipService) CreateFriendship(email1, email2 string) error {
+func (service *friendshipService) CreateFriendship(authUserId int64, email1, email2 string) error {
 	user1, err := service.userRepo.GetUserByEmail(email1)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
@@ -48,6 +48,9 @@ func (service *friendshipService) CreateFriendship(email1, email2 string) error 
 	}
 	if err != nil {
 		return err
+	}
+	if user1.Id != authUserId && user2.Id != authUserId {
+		return ErrNotPermitted
 	}
 	if user1.Id == user2.Id {
 		return ErrInvalidRequest
@@ -77,13 +80,16 @@ func (service *friendshipService) CreateFriendship(email1, email2 string) error 
 	return err
 }
 
-func (service *friendshipService) RetrieveFriendsList(email string) ([]*entity.User, error) {
+func (service *friendshipService) RetrieveFriendsList(authUserId int64, email string) ([]*entity.User, error) {
 	user, err := service.userRepo.GetUserByEmail(email)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
 	}
 	if err != nil {
 		return nil, err
+	}
+	if authUserId != user.Id {
+		return nil, ErrNotPermitted
 	}
 	friendIds, err := service.repo.RetrieveFriendIds(user.Id)
 	if err != nil {
@@ -100,7 +106,7 @@ func (service *friendshipService) RetrieveFriendsList(email string) ([]*entity.U
 	return friends, nil
 }
 
-func (service *friendshipService) RetrieveCommonFriends(email1, email2 string) ([]*entity.User, error) {
+func (service *friendshipService) RetrieveCommonFriends(authUserId int64, email1, email2 string) ([]*entity.User, error) {
 	user1, err := service.userRepo.GetUserByEmail(email1)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
@@ -114,6 +120,9 @@ func (service *friendshipService) RetrieveCommonFriends(email1, email2 string) (
 	}
 	if err != nil {
 		return nil, err
+	}
+	if authUserId != user1.Id && authUserId != user2.Id {
+		return nil, ErrNotPermitted
 	}
 	if user1.Id == user2.Id {
 		return nil, ErrInvalidRequest
