@@ -1,10 +1,20 @@
 package middleware
 
 import (
+	"BE_Friends_Management/constant"
 	"context"
+	"errors"
+	log "github.com/sirupsen/logrus"
+	"strings"
 	"time"
 
+	"BE_Friends_Management/pkg"
+	"BE_Friends_Management/pkg/utils"
 	"github.com/gin-gonic/gin"
+)
+
+var (
+	ErrAccessTokenExpires = errors.New("access token has expired")
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -29,6 +39,37 @@ func TimeoutMiddleware(d time.Duration) gin.HandlerFunc {
 		defer cancel()
 
 		c.Request = c.Request.WithContext(ctx)
+		c.Next()
+	}
+}
+
+func ValidateAccessToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer pkg.PanicHandler(c)
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			log.Error("Happened error when validating access token. Error: Missing access token")
+			pkg.PanicExeption(constant.Unauthorized, "Missing access token.")
+		}
+		rawAccessToken := strings.TrimPrefix(authHeader, "Bearer ")
+		claims, err := utils.ParseAccessToken(rawAccessToken)
+		if err != nil {
+			log.Error("Happened error when validating access token. Error: ", err)
+			switch {
+			case errors.Is(err, utils.ErrInvalidAccessToken):
+				pkg.PanicExeption(constant.Unauthorized, err.Error())
+			case errors.Is(err, utils.ErrInvalidSigningMethod):
+				pkg.PanicExeption(constant.Unauthorized, err.Error())
+			default:
+				pkg.PanicExeption(constant.UnknownError, "Invalid Access Token.")
+			}
+		}
+		if claims.ExpiresAt.Time.Before(time.Now()) {
+			log.Error("Happened error when validating access token. Error: ", ErrAccessTokenExpires)
+			pkg.PanicExeption(constant.Unauthorized, ErrAccessTokenExpires.Error())
+		}
+		authUserId := claims.UserId
+		c.Set("authUserId", authUserId)
 		c.Next()
 	}
 }

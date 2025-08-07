@@ -129,7 +129,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	}
 	err := h.service.Logout(request.RefreshToken)
 	if err != nil {
-		log.Error("Happened error when creating new friendship. Error: ", err)
+		log.Error("Happened error when logging out. Error: ", err)
 		switch {
 		case errors.Is(err, service.ErrInvalidRefreshToken):
 			pkg.PanicExeption(constant.Unauthorized, err.Error())
@@ -140,7 +140,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		case errors.Is(err, service.ErrInvalidSigningMethod):
 			pkg.PanicExeption(constant.Unauthorized, err.Error())
 		default:
-			pkg.PanicExeption(constant.UnknownError, "Happened error when refreshing access token.")
+			pkg.PanicExeption(constant.UnknownError, "Happened error when logging out.")
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())

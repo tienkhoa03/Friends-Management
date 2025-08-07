@@ -192,6 +192,11 @@ const docTemplate = `{
         },
         "/api/friendship": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Create new friendship",
                 "consumes": [
                     "application/json"
@@ -212,6 +217,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.CreateFriendshipRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -226,6 +238,11 @@ const docTemplate = `{
         },
         "/api/friendship/common-friends": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Retrieve common friends list between two email addresses",
                 "consumes": [
                     "application/json"
@@ -251,6 +268,13 @@ const docTemplate = `{
                         "name": "email2",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -265,6 +289,11 @@ const docTemplate = `{
         },
         "/api/friendship/friends": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Retrieve friends list for an email address",
                 "consumes": [
                     "application/json"
@@ -282,6 +311,13 @@ const docTemplate = `{
                         "description": "Email address",
                         "name": "email",
                         "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -656,12 +692,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
-	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Schemes:          []string{"http", "https"},
+	Title:            "Friends Management API",
+	Description:      "Friends Management API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

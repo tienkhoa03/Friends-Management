@@ -5,16 +5,21 @@ import (
 
 	"BE_Friends_Management/api/handler"
 	api "BE_Friends_Management/api/router"
+	"BE_Friends_Management/cmd/server/docs"
 	"BE_Friends_Management/config"
 	"BE_Friends_Management/internal/repository"
 	"BE_Friends_Management/internal/service"
-
-	"BE_Friends_Management/cmd/server/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           Friends Management API
+// @version         1.0
+// @description     Friends Management API
+// @BasePath
+// @schemes         http https
 
 func main() {
 	config.LoadEnv()
@@ -23,15 +28,10 @@ func main() {
 
 	services := service.NewService(repos)
 	handlers := handler.NewHandlers(services)
-	docs.SwaggerInfo.Title = "API Friends Management"
-	docs.SwaggerInfo.Description = "API Friends Management"
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = config.BASE_URL_BACKEND_FOR_SWAGGER
-	docs.SwaggerInfo.BasePath = ""
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	r := gin.Default()
 	api.SetupRoutes(r, handlers, db)
+	docs.SwaggerInfo.Host = config.BASE_URL_BACKEND_FOR_SWAGGER
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(config.Port); err != nil {

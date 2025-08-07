@@ -1,7 +1,14 @@
 {
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Friends Management API",
+        "title": "Friends Management API",
+        "contact": {},
+        "version": "1.0"
     },
     "paths": {
         "/api/auth/login": {
@@ -181,6 +188,11 @@
         },
         "/api/friendship": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Create new friendship",
                 "consumes": [
                     "application/json"
@@ -201,6 +213,13 @@
                         "schema": {
                             "$ref": "#/definitions/dto.CreateFriendshipRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -215,6 +234,11 @@
         },
         "/api/friendship/common-friends": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Retrieve common friends list between two email addresses",
                 "consumes": [
                     "application/json"
@@ -240,6 +264,13 @@
                         "name": "email2",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -254,6 +285,11 @@
         },
         "/api/friendship/friends": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Retrieve friends list for an email address",
                 "consumes": [
                     "application/json"
@@ -271,6 +307,13 @@
                         "description": "Email address",
                         "name": "email",
                         "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],

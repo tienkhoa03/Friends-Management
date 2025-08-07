@@ -20,7 +20,7 @@ func NewSubscriptionHandler(service service.SubscriptionService) *SubscriptionHa
 	return &SubscriptionHandler{service: service}
 }
 
-// User godoc
+// Subscription godoc
 // @Summary      Create new subscription
 // @Description  Create new subscription
 // @Tags         Subscription
