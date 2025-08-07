@@ -77,8 +77,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 // User godoc
-// @Summary      Refresh Token
-// @Description  Refresh Token
+// @Summary      Refresh Access Token
+// @Description  Refresh Access Token
 // @Tags         Auth
 // @Accept 		 json
 // @Produce      json
@@ -109,4 +109,39 @@ func (h *AuthHandler) RefreshAccessToken(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccessWithAccessToken(accessToken))
+}
+
+// User godoc
+// @Summary      Logout
+// @Description  Logout
+// @Tags         Auth
+// @Accept 		 json
+// @Produce      json
+// @Param 		 request body dto.LogoutRequest true "User's refresh token"
+// @Router       /api/auth/logout [POST]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+func (h *AuthHandler) Logout(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	var request dto.LogoutRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Error("Happened error when mapping request. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
+	}
+	err := h.service.Logout(request.RefreshToken)
+	if err != nil {
+		log.Error("Happened error when creating new friendship. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrInvalidRefreshToken):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrRefreshTokenIsRevoked):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrRefreshTokenExpires):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrInvalidSigningMethod):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when refreshing access token.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }

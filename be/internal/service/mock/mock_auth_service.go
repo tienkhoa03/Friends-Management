@@ -50,6 +50,35 @@ func (mr *MockAuthServiceMockRecorder) Login(email, password interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuthService)(nil).Login), email, password)
 }
 
+// Logout mocks base method.
+func (m *MockAuthService) Logout(rawRefreshToken string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Logout", rawRefreshToken)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Logout indicates an expected call of Logout.
+func (mr *MockAuthServiceMockRecorder) Logout(rawRefreshToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logout", reflect.TypeOf((*MockAuthService)(nil).Logout), rawRefreshToken)
+}
+
+// RefreshAccessToken mocks base method.
+func (m *MockAuthService) RefreshAccessToken(rawRefreshToken string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RefreshAccessToken", rawRefreshToken)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RefreshAccessToken indicates an expected call of RefreshAccessToken.
+func (mr *MockAuthServiceMockRecorder) RefreshAccessToken(rawRefreshToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefreshAccessToken", reflect.TypeOf((*MockAuthService)(nil).RefreshAccessToken), rawRefreshToken)
+}
+
 // RegisterUser mocks base method.
 func (m *MockAuthService) RegisterUser(email, password string) (*entity.User, error) {
 	m.ctrl.T.Helper()

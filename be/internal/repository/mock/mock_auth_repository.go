@@ -47,3 +47,32 @@ func (mr *MockAuthRepositoryMockRecorder) CreateToken(token interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateToken", reflect.TypeOf((*MockAuthRepository)(nil).CreateToken), token)
 }
+
+// FindByRefreshToken mocks base method.
+func (m *MockAuthRepository) FindByRefreshToken(refreshToken string) (*entity.UserToken, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByRefreshToken", refreshToken)
+	ret0, _ := ret[0].(*entity.UserToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByRefreshToken indicates an expected call of FindByRefreshToken.
+func (mr *MockAuthRepositoryMockRecorder) FindByRefreshToken(refreshToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByRefreshToken", reflect.TypeOf((*MockAuthRepository)(nil).FindByRefreshToken), refreshToken)
+}
+
+// SetRefreshTokenIsRevoked mocks base method.
+func (m *MockAuthRepository) SetRefreshTokenIsRevoked(refreshToken string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetRefreshTokenIsRevoked", refreshToken)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetRefreshTokenIsRevoked indicates an expected call of SetRefreshTokenIsRevoked.
+func (mr *MockAuthRepositoryMockRecorder) SetRefreshTokenIsRevoked(refreshToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetRefreshTokenIsRevoked", reflect.TypeOf((*MockAuthRepository)(nil).SetRefreshTokenIsRevoked), refreshToken)
+}

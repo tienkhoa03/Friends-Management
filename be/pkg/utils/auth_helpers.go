@@ -13,6 +13,11 @@ var (
 	ErrInvalidRefreshRequest = errors.New("invalid refresh token")
 )
 
+const (
+	AccessTokenExpiredTime  = time.Hour
+	RefreshTokenExpiredTime = 10 * 24 * time.Hour
+)
+
 type Claims struct {
 	UserId int64 `json:"user_id"`
 	jwt.RegisteredClaims
