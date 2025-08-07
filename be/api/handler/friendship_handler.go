@@ -6,6 +6,7 @@ import (
 	service "BE_Friends_Management/internal/service/friendship"
 	"BE_Friends_Management/pkg"
 	"BE_Friends_Management/pkg/utils"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,14 +40,14 @@ func (h *FriendshipHandler) CreateFriendship(c *gin.Context) {
 	err := h.service.CreateFriendship(request.Friends[0], request.Friends[1])
 	if err != nil {
 		log.Error("Happened error when creating new friendship. Error: ", err)
-		switch err {
-		case service.ErrInvalidRequest:
+		switch {
+		case errors.Is(err, service.ErrInvalidRequest):
 			pkg.PanicExeption(constant.InvalidRequest, err.Error())
-		case service.ErrUserNotFound:
+		case errors.Is(err, service.ErrUserNotFound):
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
-		case service.ErrAlreadyFriend:
+		case errors.Is(err, service.ErrAlreadyFriend):
 			pkg.PanicExeption(constant.Conflict, err.Error())
-		case service.ErrIsBlocked:
+		case errors.Is(err, service.ErrIsBlocked):
 			pkg.PanicExeption(constant.StatusForbidden, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new friendship.")
@@ -75,8 +76,8 @@ func (h *FriendshipHandler) RetrieveFriendsList(c *gin.Context) {
 	friends, err := h.service.RetrieveFriendsList(requestEmail)
 	if err != nil {
 		log.Error("Happened error when retrieving friends list. Error: ", err)
-		switch err {
-		case service.ErrUserNotFound:
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when retrieving friends list.")
@@ -114,10 +115,10 @@ func (h *FriendshipHandler) RetrieveCommonFriends(c *gin.Context) {
 	friends, err := h.service.RetrieveCommonFriends(requestEmail1, requestEmail2)
 	if err != nil {
 		log.Error("Happened error when retrieving common friends list. Error: ", err)
-		switch err {
-		case service.ErrInvalidRequest:
+		switch {
+		case errors.Is(err, service.ErrInvalidRequest):
 			pkg.PanicExeption(constant.InvalidRequest, err.Error())
-		case service.ErrUserNotFound:
+		case errors.Is(err, service.ErrUserNotFound):
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when retrieving common friends list.")

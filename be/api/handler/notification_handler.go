@@ -6,6 +6,7 @@ import (
 	service "BE_Friends_Management/internal/service/notification"
 	"BE_Friends_Management/pkg"
 	"BE_Friends_Management/pkg/utils"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,8 +40,8 @@ func (h *NotificationHandler) GetUpdateRecipients(c *gin.Context) {
 	recipients, err := h.service.GetUpdateRecipients(request.Sender, request.Text)
 	if err != nil {
 		log.Error("Happened error when getting recipients. Error: ", err)
-		switch err {
-		case service.ErrUserNotFound:
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when getting recipients.")

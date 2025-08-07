@@ -5,6 +5,7 @@ import (
 	"BE_Friends_Management/internal/domain/dto"
 	service "BE_Friends_Management/internal/service/subscription"
 	"BE_Friends_Management/pkg"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -38,14 +39,14 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 	err := h.service.CreateSubscription(request.Requestor, request.Target)
 	if err != nil {
 		log.Error("Happened error when creating new subscription. Error: ", err)
-		switch err {
-		case service.ErrInvalidRequest:
+		switch {
+		case errors.Is(err, service.ErrInvalidRequest):
 			pkg.PanicExeption(constant.InvalidRequest, err.Error())
-		case service.ErrUserNotFound:
+		case errors.Is(err, service.ErrUserNotFound):
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
-		case service.ErrAlreadySubscribed:
+		case errors.Is(err, service.ErrAlreadySubscribed):
 			pkg.PanicExeption(constant.Conflict, err.Error())
-		case service.ErrIsBlocked:
+		case errors.Is(err, service.ErrIsBlocked):
 			pkg.PanicExeption(constant.StatusForbidden, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating new subscription.")
