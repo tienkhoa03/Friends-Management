@@ -14,7 +14,7 @@ import (
 //go:generate mockgen -source=service.go -destination=../mock/mock_block_service.go
 
 type BlockRelationshipService interface {
-	CreateBlockRelationship(requestorEmail, targetEmail string) error
+	CreateBlockRelationship(authUserId int64, requestorEmail, targetEmail string) error
 }
 
 type blockRelationshipService struct {
@@ -33,13 +33,16 @@ func NewBlockRelationshipService(repo blockRelationship.BlockRelationshipReposit
 	}
 }
 
-func (service *blockRelationshipService) CreateBlockRelationship(requestorEmail, targetEmail string) error {
+func (service *blockRelationshipService) CreateBlockRelationship(authUserId int64, requestorEmail, targetEmail string) error {
 	requestor, err := service.userRepo.GetUserByEmail(requestorEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
 	}
 	if err != nil {
 		return err
+	}
+	if authUserId != requestor.Id {
+		return ErrNotPermitted
 	}
 	target, err := service.userRepo.GetUserByEmail(targetEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
