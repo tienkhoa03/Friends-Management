@@ -11,15 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_friendship_service.go
-
-type FriendshipService interface {
-	CreateFriendship(authUserId int64, email1, email2 string) error
-	RetrieveFriendsList(authUserId int64, email string) ([]*entity.User, error)
-	RetrieveCommonFriends(authUserId int64, email1, email2 string) ([]*entity.User, error)
-	CountFriends(friendsList []*entity.User) int64
-}
-
 type friendshipService struct {
 	repo                  friendship.FriendshipRepository
 	userRepo              user.UserRepository

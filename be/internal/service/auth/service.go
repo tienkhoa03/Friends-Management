@@ -14,15 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_auth_service.go
-
-type AuthService interface {
-	RegisterUser(email, password string) (*entity.User, error)
-	Login(email, password string) (string, string, error)
-	RefreshAccessToken(rawRefreshToken string) (string, error)
-	Logout(rawRefreshToken string) error
-}
-
 type authService struct {
 	repo     auth.AuthRepository
 	userRepo users.UserRepository
