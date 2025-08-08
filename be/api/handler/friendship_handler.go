@@ -37,7 +37,7 @@ func NewFriendshipHandler(service service.FriendshipService) *FriendshipHandler 
 // @Security JWT
 func (h *FriendshipHandler) CreateFriendship(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	authUserId := utils.GetAuthUserID(c)
+	authUserId := utils.GetAuthUserId(c)
 	var request dto.CreateFriendshipRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error("Happened error when mapping request. Error: ", err)
@@ -80,14 +80,15 @@ func (h *FriendshipHandler) CreateFriendship(c *gin.Context) {
 // @Security JWT
 func (h *FriendshipHandler) RetrieveFriendsList(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	authUserId := utils.GetAuthUserID(c)
+	authUserId := utils.GetAuthUserId(c)
+	authUserRole := utils.GetAuthUserRole(c)
 	requestEmail := c.Query("email")
 	if requestEmail == "" {
 		log.Error("Happened error when mapping request. Error: received no email input.")
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 		return
 	}
-	friends, err := h.service.RetrieveFriendsList(authUserId, requestEmail)
+	friends, err := h.service.RetrieveFriendsList(authUserId, authUserRole, requestEmail)
 	if err != nil {
 		log.Error("Happened error when retrieving friends list. Error: ", err)
 		switch {
@@ -121,7 +122,8 @@ func (h *FriendshipHandler) RetrieveFriendsList(c *gin.Context) {
 // @Security JWT
 func (h *FriendshipHandler) RetrieveCommonFriends(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	authUserId := utils.GetAuthUserID(c)
+	authUserId := utils.GetAuthUserId(c)
+	authUserRole := utils.GetAuthUserRole(c)
 	requestEmail1 := c.Query("email1")
 	if requestEmail1 == "" {
 		log.Error("Happened error when mapping request. Error: received no email input.")
@@ -134,7 +136,7 @@ func (h *FriendshipHandler) RetrieveCommonFriends(c *gin.Context) {
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 		return
 	}
-	friends, err := h.service.RetrieveCommonFriends(authUserId, requestEmail1, requestEmail2)
+	friends, err := h.service.RetrieveCommonFriends(authUserId, authUserRole, requestEmail1, requestEmail2)
 	if err != nil {
 		log.Error("Happened error when retrieving common friends list. Error: ", err)
 		switch {

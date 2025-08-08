@@ -2,8 +2,8 @@ package service
 
 import (
 	"BE_Friends_Management/internal/domain/entity"
-	auth "BE_Friends_Management/internal/repository/auth"
-	users "BE_Friends_Management/internal/repository/users"
+	authRepository "BE_Friends_Management/internal/repository/auth"
+	usersRepository "BE_Friends_Management/internal/repository/users"
 	"BE_Friends_Management/pkg/utils"
 	"errors"
 	"strings"
@@ -15,11 +15,11 @@ import (
 )
 
 type authService struct {
-	repo     auth.AuthRepository
-	userRepo users.UserRepository
+	repo     authRepository.AuthRepository
+	userRepo usersRepository.UserRepository
 }
 
-func NewAuthService(repo auth.AuthRepository, userRepo users.UserRepository) AuthService {
+func NewAuthService(repo authRepository.AuthRepository, userRepo usersRepository.UserRepository) AuthService {
 	return &authService{repo: repo, userRepo: userRepo}
 }
 
@@ -28,7 +28,7 @@ func (service *authService) RegisterUser(email, password string) (*entity.User, 
 	if err != nil {
 		return nil, err
 	}
-	user := entity.User{Email: email, Password: string(hashedPassword)}
+	user := entity.User{Email: email, Password: string(hashedPassword), Role: "user"}
 	newUser, err := service.userRepo.CreateUser(&user)
 	if err != nil && strings.Contains(err.Error(), "duplicate key") {
 		return nil, ErrAlreadyRegistered
@@ -49,12 +49,12 @@ func (service *authService) Login(email, password string) (string, string, error
 		return "", "", ErrInvalidLoginRequest
 	}
 	accessTokenExpiredTime := time.Now().Add(utils.AccessTokenExpiredTime)
-	accessToken, err := utils.GenerateAccessToken(user.Id, accessTokenExpiredTime)
+	accessToken, err := utils.GenerateAccessToken(user.Id, user.Role, accessTokenExpiredTime)
 	if err != nil {
 		return "", "", err
 	}
 	refreshTokenExpiredTime := time.Now().Add(utils.RefreshTokenExpiredTime)
-	refreshToken, err := utils.GenerateRefreshToken(user.Id, refreshTokenExpiredTime)
+	refreshToken, err := utils.GenerateRefreshToken(user.Id, user.Role, refreshTokenExpiredTime)
 	if err != nil {
 		return "", "", err
 	}
@@ -95,7 +95,7 @@ func (service *authService) RefreshAccessToken(rawRefreshToken string) (string, 
 	if claims.ExpiresAt.Time.Before(time.Now()) {
 		return "", ErrRefreshTokenExpires
 	}
-	accessToken, err := utils.GenerateAccessToken(userToken.UserId, time.Now().Add(utils.AccessTokenExpiredTime))
+	accessToken, err := utils.GenerateAccessToken(userToken.UserId, claims.Role, time.Now().Add(utils.AccessTokenExpiredTime))
 	if err != nil {
 		return "", err
 	}

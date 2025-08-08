@@ -17,7 +17,7 @@ var (
 
 type FriendshipService interface {
 	CreateFriendship(authUserId int64, email1, email2 string) error
-	RetrieveFriendsList(authUserId int64, email string) ([]*entity.User, error)
-	RetrieveCommonFriends(authUserId int64, email1, email2 string) ([]*entity.User, error)
+	RetrieveFriendsList(authUserId int64, authUserRole string, email string) ([]*entity.User, error)
+	RetrieveCommonFriends(authUserId int64, authUserRole string, email1, email2 string) ([]*entity.User, error)
 	CountFriends(friendsList []*entity.User) int64
 }

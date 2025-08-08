@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAuthUserID(c *gin.Context) int64 {
+func GetAuthUserId(c *gin.Context) int64 {
 	rawAuthUserId, exists := c.Get("authUserId")
 	if !exists {
 		log.Error("Happened error when creating new friendship. Error: ", ErrInvalidAccessToken)
@@ -23,4 +23,14 @@ func GetAuthUserID(c *gin.Context) int64 {
 		pkg.PanicExeption(constant.UnknownError, "Happened error when creating new friendship.")
 	}
 	return authUserId
+}
+
+func GetAuthUserRole(c *gin.Context) string {
+	rawAuthUserRole, exists := c.Get("authUserRole")
+	if !exists {
+		log.Error("Happened error when creating new friendship. Error: ", ErrInvalidAccessToken)
+		pkg.PanicExeption(constant.InvalidRequest, ErrInvalidAccessToken.Error())
+	}
+	authUserRole := fmt.Sprint(rawAuthUserRole)
+	return authUserRole
 }

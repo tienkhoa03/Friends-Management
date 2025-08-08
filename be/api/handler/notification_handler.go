@@ -37,13 +37,14 @@ func NewNotificationHandler(service service.NotificationService) *NotificationHa
 // @Security JWT
 func (h *NotificationHandler) GetUpdateRecipients(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	authUserId := utils.GetAuthUserID(c)
+	authUserId := utils.GetAuthUserId(c)
+	authUserRole := utils.GetAuthUserRole(c)
 	var request dto.GetUpdateRecipientsRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error("Happened error when mapping request. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 	}
-	recipients, err := h.service.GetUpdateRecipients(authUserId, request.Sender, request.Text)
+	recipients, err := h.service.GetUpdateRecipients(authUserId, authUserRole, request.Sender, request.Text)
 	if err != nil {
 		log.Error("Happened error when getting recipients. Error: ", err)
 		switch {

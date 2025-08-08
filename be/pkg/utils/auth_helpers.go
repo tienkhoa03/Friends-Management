@@ -13,13 +13,15 @@ const (
 )
 
 type Claims struct {
-	UserId int64 `json:"user_id"`
+	UserId int64  `json:"user_id"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userId int64, expiredTime time.Time) (string, error) {
+func GenerateAccessToken(userId int64, role string, expiredTime time.Time) (string, error) {
 	claims := &Claims{
 		UserId: userId,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiredTime),
 		},
@@ -32,9 +34,10 @@ func GenerateAccessToken(userId int64, expiredTime time.Time) (string, error) {
 	return accessString, nil
 }
 
-func GenerateRefreshToken(userId int64, expiredTime time.Time) (string, error) {
+func GenerateRefreshToken(userId int64, role string, expiredTime time.Time) (string, error) {
 	claims := &Claims{
 		UserId: userId,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiredTime),
 		},

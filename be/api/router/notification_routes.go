@@ -9,5 +9,5 @@ import (
 
 func registerNotificationRoutes(api *gin.RouterGroup, h *handler.NotificationHandler, db *gorm.DB) {
 	api.Use(middleware.ValidateAccessToken())
-	api.POST("/update-recipients", h.GetUpdateRecipients)
+	api.POST("/update-recipients", middleware.RequireAnyRole([]string{"admin", "user"}), h.GetUpdateRecipients)
 }

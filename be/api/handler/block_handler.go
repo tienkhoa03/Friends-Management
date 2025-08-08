@@ -37,7 +37,7 @@ func NewBlockRelationshipHandler(service service.BlockRelationshipService) *Bloc
 // @Security JWT
 func (h *BlockRelationshipHandler) CreateBlockRelationship(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	authUserId := utils.GetAuthUserID(c)
+	authUserId := utils.GetAuthUserId(c)
 	var request dto.CreateBlockRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error("Happened error when mapping request. Error: ", err)

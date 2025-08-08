@@ -3,3 +3,46 @@
 
 // Package mock_service is a generated GoMock package.
 package mock_service
+
+import (
+	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
+)
+
+// MockSubscriptionService is a mock of SubscriptionService interface.
+type MockSubscriptionService struct {
+	ctrl     *gomock.Controller
+	recorder *MockSubscriptionServiceMockRecorder
+}
+
+// MockSubscriptionServiceMockRecorder is the mock recorder for MockSubscriptionService.
+type MockSubscriptionServiceMockRecorder struct {
+	mock *MockSubscriptionService
+}
+
+// NewMockSubscriptionService creates a new mock instance.
+func NewMockSubscriptionService(ctrl *gomock.Controller) *MockSubscriptionService {
+	mock := &MockSubscriptionService{ctrl: ctrl}
+	mock.recorder = &MockSubscriptionServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSubscriptionService) EXPECT() *MockSubscriptionServiceMockRecorder {
+	return m.recorder
+}
+
+// CreateSubscription mocks base method.
+func (m *MockSubscriptionService) CreateSubscription(authUserId int64, requestorEmail, targetEmail string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSubscription", authUserId, requestorEmail, targetEmail)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateSubscription indicates an expected call of CreateSubscription.
+func (mr *MockSubscriptionServiceMockRecorder) CreateSubscription(authUserId, requestorEmail, targetEmail interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockSubscriptionService)(nil).CreateSubscription), authUserId, requestorEmail, targetEmail)
+}

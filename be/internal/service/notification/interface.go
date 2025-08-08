@@ -13,5 +13,5 @@ var (
 //go:generate mockgen -source=service.go -destination=../mock/mock_notification_service.go
 
 type NotificationService interface {
-	GetUpdateRecipients(authUserId int64, senderEmail, text string) ([]*entity.User, error)
+	GetUpdateRecipients(authUserId int64, authUserRole string, senderEmail, text string) ([]*entity.User, error)
 }

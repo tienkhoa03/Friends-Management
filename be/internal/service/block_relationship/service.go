@@ -1,10 +1,10 @@
 package service
 
 import (
-	blockRelationship "BE_Friends_Management/internal/repository/block_relationship"
-	friendship "BE_Friends_Management/internal/repository/friendship"
-	subscription "BE_Friends_Management/internal/repository/subscription"
-	user "BE_Friends_Management/internal/repository/users"
+	blockRelationshipRepository "BE_Friends_Management/internal/repository/block_relationship"
+	friendshipRepository "BE_Friends_Management/internal/repository/friendship"
+	subscriptionRepository "BE_Friends_Management/internal/repository/subscription"
+	userRepository "BE_Friends_Management/internal/repository/users"
 	"errors"
 	"strings"
 
@@ -12,13 +12,13 @@ import (
 )
 
 type blockRelationshipService struct {
-	repo             blockRelationship.BlockRelationshipRepository
-	userRepo         user.UserRepository
-	friendshipRepo   friendship.FriendshipRepository
-	subscriptionRepo subscription.SubscriptionRepository
+	repo             blockRelationshipRepository.BlockRelationshipRepository
+	userRepo         userRepository.UserRepository
+	friendshipRepo   friendshipRepository.FriendshipRepository
+	subscriptionRepo subscriptionRepository.SubscriptionRepository
 }
 
-func NewBlockRelationshipService(repo blockRelationship.BlockRelationshipRepository, userRepo user.UserRepository, friendshipRepo friendship.FriendshipRepository, subscriptionRepo subscription.SubscriptionRepository) BlockRelationshipService {
+func NewBlockRelationshipService(repo blockRelationshipRepository.BlockRelationshipRepository, userRepo userRepository.UserRepository, friendshipRepo friendshipRepository.FriendshipRepository, subscriptionRepo subscriptionRepository.SubscriptionRepository) BlockRelationshipService {
 	return &blockRelationshipService{
 		repo:             repo,
 		userRepo:         userRepo,

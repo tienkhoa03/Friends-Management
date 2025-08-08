@@ -10,5 +10,5 @@ import (
 
 func registerBlockRoutes(api *gin.RouterGroup, h *handler.BlockRelationshipHandler, db *gorm.DB) {
 	api.Use(middleware.ValidateAccessToken())
-	api.POST("/block", h.CreateBlockRelationship)
+	api.POST("/block", middleware.RequireAnyRole([]string{"user"}), h.CreateBlockRelationship)
 }
