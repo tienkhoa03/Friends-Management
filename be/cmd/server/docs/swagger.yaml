@@ -197,6 +197,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.CreateBlockRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -204,6 +209,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
       summary: Create new block relationship
       tags:
       - BlockRelationship
@@ -309,6 +316,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.CreateSubscriptionRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -316,6 +328,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
       summary: Create new subscription
       tags:
       - Subscription
@@ -332,6 +346,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.GetUpdateRecipientsRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -339,6 +358,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
       summary: Get update recipients
       tags:
       - Notification

@@ -28,21 +28,29 @@ func NewNotificationHandler(service service.NotificationService) *NotificationHa
 // @Accept 		json
 // @Produce      json
 // @Param 		 request body dto.GetUpdateRecipientsRequest true "Sender email and update text"
+// @param Authorization header string true "Authorization"
 // @Router       /api/update-recipients [POST]
 // @Success      200   {object}  dto.ApiResponseSuccessNoData
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
 func (h *NotificationHandler) GetUpdateRecipients(c *gin.Context) {
 	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserID(c)
 	var request dto.GetUpdateRecipientsRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error("Happened error when mapping request. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 	}
-	recipients, err := h.service.GetUpdateRecipients(request.Sender, request.Text)
+	recipients, err := h.service.GetUpdateRecipients(authUserId, request.Sender, request.Text)
 	if err != nil {
 		log.Error("Happened error when getting recipients. Error: ", err)
 		switch {
 		case errors.Is(err, service.ErrUserNotFound):
 			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.StatusForbidden, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when getting recipients.")
 		}

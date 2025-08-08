@@ -15,7 +15,7 @@ import (
 //go:generate mockgen -source=service.go -destination=../mock/mock_notification_service.go
 
 type NotificationService interface {
-	GetUpdateRecipients(senderEmail, text string) ([]*entity.User, error)
+	GetUpdateRecipients(authUserId int64, senderEmail, text string) ([]*entity.User, error)
 }
 
 type notificationService struct {
@@ -34,7 +34,7 @@ func NewNotificationService(blockRepo notification.BlockRelationshipRepository, 
 	}
 }
 
-func (service *notificationService) GetUpdateRecipients(senderEmail, text string) ([]*entity.User, error) {
+func (service *notificationService) GetUpdateRecipients(authUserId int64, senderEmail, text string) ([]*entity.User, error) {
 	sender, err := service.userRepo.GetUserByEmail(senderEmail)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
@@ -43,6 +43,9 @@ func (service *notificationService) GetUpdateRecipients(senderEmail, text string
 		return nil, err
 	}
 	senderId := sender.Id
+	if authUserId != senderId {
+		return nil, ErrNotPermitted
+	}
 
 	blockRequestorIds, err := service.blockRepo.GetBlockRequestorIds(senderId)
 	if err != nil {

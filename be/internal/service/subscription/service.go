@@ -14,7 +14,7 @@ import (
 //go:generate mockgen -source=service.go -destination=../mock/mock_subscription_service.go
 
 type SubscriptionService interface {
-	CreateSubscription(requestorEmail, targetEmail string) error
+	CreateSubscription(authUserId int64, requestorEmail, targetEmail string) error
 }
 
 type subscriptionService struct {
@@ -33,13 +33,16 @@ func NewSubscriptionService(repo subscription.SubscriptionRepository, userRepo u
 	}
 }
 
-func (service *subscriptionService) CreateSubscription(requestorEmail, targetEmail string) error {
+func (service *subscriptionService) CreateSubscription(authUserId int64, requestorEmail, targetEmail string) error {
 	requestor, err := service.userRepo.GetUserByEmail(requestorEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrUserNotFound
 	}
 	if err != nil {
 		return err
+	}
+	if authUserId != requestor.Id {
+		return ErrNotPermitted
 	}
 	target, err := service.userRepo.GetUserByEmail(targetEmail)
 	if errors.Is(err, gorm.ErrRecordNotFound) {

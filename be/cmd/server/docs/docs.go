@@ -158,6 +158,11 @@ const docTemplate = `{
         },
         "/api/block": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Create new block relationship",
                 "consumes": [
                     "application/json"
@@ -178,6 +183,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.CreateBlockRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -333,6 +345,11 @@ const docTemplate = `{
         },
         "/api/subscription": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Create new subscription",
                 "consumes": [
                     "application/json"
@@ -353,6 +370,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.CreateSubscriptionRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -367,6 +391,11 @@ const docTemplate = `{
         },
         "/api/update-recipients": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Get all email addresses that can receive updates from an email address.",
                 "consumes": [
                     "application/json"
@@ -387,6 +416,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.GetUpdateRecipientsRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {

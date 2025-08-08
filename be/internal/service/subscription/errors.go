@@ -7,4 +7,5 @@ var (
 	ErrAlreadySubscribed = errors.New("requestor has already subscribed this target user")
 	ErrInvalidRequest    = errors.New("two email can not be the same")
 	ErrIsBlocked         = errors.New("requestor has blocked target user")
+	ErrNotPermitted      = errors.New("action not permitted")
 )
