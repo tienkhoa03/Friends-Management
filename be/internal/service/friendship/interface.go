@@ -13,7 +13,7 @@ var (
 	ErrNotPermitted   = errors.New("action not permitted")
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_friendship_service.go
+//go:generate mockgen -source=interface.go -destination=../mock/mock_friendship_service.go
 
 type FriendshipService interface {
 	CreateFriendship(authUserId int64, email1, email2 string) error

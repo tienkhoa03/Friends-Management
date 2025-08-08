@@ -14,7 +14,7 @@ var (
 	ErrInvalidSigningMethod  = errors.New("unexpected signing method")
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_auth_service.go
+//go:generate mockgen -source=interface.go -destination=../mock/mock_auth_service.go
 
 type AuthService interface {
 	RegisterUser(email, password string) (*entity.User, error)
