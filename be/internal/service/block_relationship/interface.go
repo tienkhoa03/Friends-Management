@@ -9,3 +9,9 @@ var (
 	ErrNotSubscribed  = errors.New("can not block if they are friends and have not subscribed")
 	ErrNotPermitted   = errors.New("action not permitted")
 )
+
+//go:generate mockgen -source=service.go -destination=../mock/mock_block_service.go
+
+type BlockRelationshipService interface {
+	CreateBlockRelationship(authUserId int64, requestorEmail, targetEmail string) error
+}

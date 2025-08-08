@@ -9,3 +9,9 @@ var (
 	ErrIsBlocked         = errors.New("requestor has blocked target user")
 	ErrNotPermitted      = errors.New("action not permitted")
 )
+
+//go:generate mockgen -source=service.go -destination=../mock/mock_subscription_service.go
+
+type SubscriptionService interface {
+	CreateSubscription(authUserId int64, requestorEmail, targetEmail string) error
+}

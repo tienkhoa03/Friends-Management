@@ -11,12 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_subscription_service.go
-
-type SubscriptionService interface {
-	CreateSubscription(authUserId int64, requestorEmail, targetEmail string) error
-}
-
 type subscriptionService struct {
 	repo                  subscriptionRepository.SubscriptionRepository
 	userRepo              userRepository.UserRepository

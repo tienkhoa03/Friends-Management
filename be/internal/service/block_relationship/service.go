@@ -11,12 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_block_service.go
-
-type BlockRelationshipService interface {
-	CreateBlockRelationship(authUserId int64, requestorEmail, targetEmail string) error
-}
-
 type blockRelationshipService struct {
 	repo             blockRelationshipRepository.BlockRelationshipRepository
 	userRepo         userRepository.UserRepository

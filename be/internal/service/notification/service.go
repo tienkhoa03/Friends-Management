@@ -12,12 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_notification_service.go
-
-type NotificationService interface {
-	GetUpdateRecipients(authUserId int64, authUserRole string, senderEmail, text string) ([]*entity.User, error)
-}
-
 type notificationService struct {
 	blockRepo        notificationRepository.BlockRelationshipRepository
 	userRepo         userRepository.UserRepository

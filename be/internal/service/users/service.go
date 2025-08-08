@@ -6,15 +6,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_user_service.go
-
-type UserService interface {
-	GetAllUser() ([]*entity.User, error)
-	GetUserById(userId int64) (*entity.User, error)
-	DeleteUserById(userId int64) error
-	UpdateUser(userId int64, email string, password string) (*entity.User, error)
-}
-
 type userService struct {
 	repo userRepository.UserRepository
 }
