@@ -433,6 +433,11 @@
         },
         "/api/users": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Get all user",
                 "consumes": [
                     "application/json"
@@ -441,36 +446,15 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Get all user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create new user",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Create new user",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Email",
-                        "name": "email",
-                        "in": "formData",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -486,6 +470,11 @@
         },
         "/api/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Get user by ID",
                 "consumes": [
                     "application/json"
@@ -494,7 +483,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Get user by ID",
                 "parameters": [
@@ -503,6 +492,13 @@
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -516,6 +512,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Update user",
                 "consumes": [
                     "multipart/form-data"
@@ -524,7 +525,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Update user",
                 "parameters": [
@@ -541,6 +542,20 @@
                         "name": "email",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User's New Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -553,6 +568,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Delete user",
                 "consumes": [
                     "application/json"
@@ -561,7 +581,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Delete user",
                 "parameters": [
@@ -570,6 +590,13 @@
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],

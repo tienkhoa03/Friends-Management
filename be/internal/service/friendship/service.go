@@ -2,9 +2,9 @@ package service
 
 import (
 	"BE_Friends_Management/internal/domain/entity"
-	block_relationship "BE_Friends_Management/internal/repository/block_relationship"
-	friendship "BE_Friends_Management/internal/repository/friendship"
-	user "BE_Friends_Management/internal/repository/users"
+	blockRelationshipRepository "BE_Friends_Management/internal/repository/block_relationship"
+	friendshipRepository "BE_Friends_Management/internal/repository/friendship"
+	userRepository "BE_Friends_Management/internal/repository/users"
 	"errors"
 	"strings"
 
@@ -15,18 +15,18 @@ import (
 
 type FriendshipService interface {
 	CreateFriendship(authUserId int64, email1, email2 string) error
-	RetrieveFriendsList(authUserId int64, email string) ([]*entity.User, error)
-	RetrieveCommonFriends(authUserId int64, email1, email2 string) ([]*entity.User, error)
+	RetrieveFriendsList(authUserId int64, authUserRole string, email string) ([]*entity.User, error)
+	RetrieveCommonFriends(authUserId int64, authUserRole string, email1, email2 string) ([]*entity.User, error)
 	CountFriends(friendsList []*entity.User) int64
 }
 
 type friendshipService struct {
-	repo                  friendship.FriendshipRepository
-	userRepo              user.UserRepository
-	blockRelationshipRepo block_relationship.BlockRelationshipRepository
+	repo                  friendshipRepository.FriendshipRepository
+	userRepo              userRepository.UserRepository
+	blockRelationshipRepo blockRelationshipRepository.BlockRelationshipRepository
 }
 
-func NewFriendshipService(repo friendship.FriendshipRepository, userRepo user.UserRepository, blockRelationshipRepo block_relationship.BlockRelationshipRepository) FriendshipService {
+func NewFriendshipService(repo friendshipRepository.FriendshipRepository, userRepo userRepository.UserRepository, blockRelationshipRepo blockRelationshipRepository.BlockRelationshipRepository) FriendshipService {
 	return &friendshipService{
 		repo:                  repo,
 		userRepo:              userRepo,
@@ -80,7 +80,7 @@ func (service *friendshipService) CreateFriendship(authUserId int64, email1, ema
 	return err
 }
 
-func (service *friendshipService) RetrieveFriendsList(authUserId int64, email string) ([]*entity.User, error) {
+func (service *friendshipService) RetrieveFriendsList(authUserId int64, authUserRole string, email string) ([]*entity.User, error) {
 	user, err := service.userRepo.GetUserByEmail(email)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
@@ -88,7 +88,7 @@ func (service *friendshipService) RetrieveFriendsList(authUserId int64, email st
 	if err != nil {
 		return nil, err
 	}
-	if authUserId != user.Id {
+	if authUserRole == "user" && authUserId != user.Id {
 		return nil, ErrNotPermitted
 	}
 	friendIds, err := service.repo.RetrieveFriendIds(user.Id)
@@ -106,7 +106,7 @@ func (service *friendshipService) RetrieveFriendsList(authUserId int64, email st
 	return friends, nil
 }
 
-func (service *friendshipService) RetrieveCommonFriends(authUserId int64, email1, email2 string) ([]*entity.User, error) {
+func (service *friendshipService) RetrieveCommonFriends(authUserId int64, authUserRole string, email1, email2 string) ([]*entity.User, error) {
 	user1, err := service.userRepo.GetUserByEmail(email1)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
@@ -121,7 +121,7 @@ func (service *friendshipService) RetrieveCommonFriends(authUserId int64, email1
 	if err != nil {
 		return nil, err
 	}
-	if authUserId != user1.Id && authUserId != user2.Id {
+	if authUserRole == "user" && authUserId != user1.Id && authUserId != user2.Id {
 		return nil, ErrNotPermitted
 	}
 	if user1.Id == user2.Id {

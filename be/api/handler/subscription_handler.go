@@ -37,7 +37,7 @@ func NewSubscriptionHandler(service service.SubscriptionService) *SubscriptionHa
 // @Security JWT
 func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 	defer pkg.PanicHandler(c)
-	authUserId := utils.GetAuthUserID(c)
+	authUserId := utils.GetAuthUserId(c)
 	var request dto.CreateSubscriptionRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error("Happened error when mapping request. Error: ", err)

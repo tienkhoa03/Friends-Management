@@ -34,15 +34,15 @@ func (m *MockBlockRelationshipService) EXPECT() *MockBlockRelationshipServiceMoc
 }
 
 // CreateBlockRelationship mocks base method.
-func (m *MockBlockRelationshipService) CreateBlockRelationship(requestorEmail, targetEmail string) error {
+func (m *MockBlockRelationshipService) CreateBlockRelationship(authUserId int64, requestorEmail, targetEmail string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateBlockRelationship", requestorEmail, targetEmail)
+	ret := m.ctrl.Call(m, "CreateBlockRelationship", authUserId, requestorEmail, targetEmail)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateBlockRelationship indicates an expected call of CreateBlockRelationship.
-func (mr *MockBlockRelationshipServiceMockRecorder) CreateBlockRelationship(requestorEmail, targetEmail interface{}) *gomock.Call {
+func (mr *MockBlockRelationshipServiceMockRecorder) CreateBlockRelationship(authUserId, requestorEmail, targetEmail interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlockRelationship", reflect.TypeOf((*MockBlockRelationshipService)(nil).CreateBlockRelationship), requestorEmail, targetEmail)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBlockRelationship", reflect.TypeOf((*MockBlockRelationshipService)(nil).CreateBlockRelationship), authUserId, requestorEmail, targetEmail)
 }

@@ -9,9 +9,8 @@ import (
 
 func registerUserRoutes(api *gin.RouterGroup, h *handler.UserHandler, db *gorm.DB) {
 	api.Use(middleware.ValidateAccessToken())
-	api.GET("/users", h.GetAllUser)
-	api.GET("/users/:id", h.GetUserById)
-	api.POST("/users", h.CreateUser)
-	api.DELETE("/users/:id", h.DeleteUserById)
-	api.PUT("users/:id", h.UpdateUser)
+	api.GET("/users", middleware.RequireAnyRole([]string{"admin"}), h.GetAllUser)
+	api.GET("/users/:id", middleware.RequireAnyRole([]string{"admin"}), h.GetUserById)
+	api.DELETE("/users/:id", middleware.RequireAnyRole([]string{"admin"}), h.DeleteUserById)
+	api.PUT("users/:id", middleware.RequireAnyRole([]string{"admin"}), h.UpdateUser)
 }

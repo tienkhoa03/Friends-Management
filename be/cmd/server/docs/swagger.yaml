@@ -368,24 +368,10 @@ paths:
       consumes:
       - application/json
       description: Get all user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      summary: Get all user
-      tags:
-      - Users
-    post:
-      consumes:
-      - multipart/form-data
-      description: Create new user
       parameters:
-      - description: User Email
-        in: formData
-        name: email
+      - description: Authorization
+        in: header
+        name: Authorization
         required: true
         type: string
       produces:
@@ -395,9 +381,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      summary: Create new user
+      security:
+      - JWT: []
+      summary: Get all user
       tags:
-      - Users
+      - Users Management
   /api/users/{id}:
     delete:
       consumes:
@@ -409,6 +397,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -416,9 +409,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
       summary: Delete user
       tags:
-      - Users
+      - Users Management
     get:
       consumes:
       - application/json
@@ -429,6 +424,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -436,9 +436,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
       summary: Get user by ID
       tags:
-      - Users
+      - Users Management
     put:
       consumes:
       - multipart/form-data
@@ -454,6 +456,16 @@ paths:
         name: email
         required: true
         type: string
+      - description: User's New Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -461,9 +473,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
       summary: Update user
       tags:
-      - Users
+      - Users Management
 schemes:
 - http
 - https

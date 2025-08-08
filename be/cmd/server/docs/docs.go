@@ -437,6 +437,11 @@ const docTemplate = `{
         },
         "/api/users": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Get all user",
                 "consumes": [
                     "application/json"
@@ -445,36 +450,15 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Get all user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create new user",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Create new user",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User Email",
-                        "name": "email",
-                        "in": "formData",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -490,6 +474,11 @@ const docTemplate = `{
         },
         "/api/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Get user by ID",
                 "consumes": [
                     "application/json"
@@ -498,7 +487,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Get user by ID",
                 "parameters": [
@@ -507,6 +496,13 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -520,6 +516,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Update user",
                 "consumes": [
                     "multipart/form-data"
@@ -528,7 +529,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Update user",
                 "parameters": [
@@ -545,6 +546,20 @@ const docTemplate = `{
                         "name": "email",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User's New Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -557,6 +572,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Delete user",
                 "consumes": [
                     "application/json"
@@ -565,7 +585,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Users"
+                    "Users Management"
                 ],
                 "summary": "Delete user",
                 "parameters": [
@@ -574,6 +594,13 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],

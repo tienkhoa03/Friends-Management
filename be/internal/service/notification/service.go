@@ -2,10 +2,10 @@ package service
 
 import (
 	"BE_Friends_Management/internal/domain/entity"
-	notification "BE_Friends_Management/internal/repository/block_relationship"
-	friendship "BE_Friends_Management/internal/repository/friendship"
-	subscription "BE_Friends_Management/internal/repository/subscription"
-	user "BE_Friends_Management/internal/repository/users"
+	notificationRepository "BE_Friends_Management/internal/repository/block_relationship"
+	friendshipRepository "BE_Friends_Management/internal/repository/friendship"
+	subscriptionRepository "BE_Friends_Management/internal/repository/subscription"
+	userRepository "BE_Friends_Management/internal/repository/users"
 	utils "BE_Friends_Management/pkg/utils"
 	"errors"
 
@@ -15,17 +15,17 @@ import (
 //go:generate mockgen -source=service.go -destination=../mock/mock_notification_service.go
 
 type NotificationService interface {
-	GetUpdateRecipients(authUserId int64, senderEmail, text string) ([]*entity.User, error)
+	GetUpdateRecipients(authUserId int64, authUserRole string, senderEmail, text string) ([]*entity.User, error)
 }
 
 type notificationService struct {
-	blockRepo        notification.BlockRelationshipRepository
-	userRepo         user.UserRepository
-	friendshipRepo   friendship.FriendshipRepository
-	subscriptionRepo subscription.SubscriptionRepository
+	blockRepo        notificationRepository.BlockRelationshipRepository
+	userRepo         userRepository.UserRepository
+	friendshipRepo   friendshipRepository.FriendshipRepository
+	subscriptionRepo subscriptionRepository.SubscriptionRepository
 }
 
-func NewNotificationService(blockRepo notification.BlockRelationshipRepository, userRepo user.UserRepository, friendshipRepo friendship.FriendshipRepository, subscriptionRepo subscription.SubscriptionRepository) NotificationService {
+func NewNotificationService(blockRepo notificationRepository.BlockRelationshipRepository, userRepo userRepository.UserRepository, friendshipRepo friendshipRepository.FriendshipRepository, subscriptionRepo subscriptionRepository.SubscriptionRepository) NotificationService {
 	return &notificationService{
 		blockRepo:        blockRepo,
 		userRepo:         userRepo,
@@ -34,7 +34,7 @@ func NewNotificationService(blockRepo notification.BlockRelationshipRepository, 
 	}
 }
 
-func (service *notificationService) GetUpdateRecipients(authUserId int64, senderEmail, text string) ([]*entity.User, error) {
+func (service *notificationService) GetUpdateRecipients(authUserId int64, authUserRole string, senderEmail, text string) ([]*entity.User, error) {
 	sender, err := service.userRepo.GetUserByEmail(senderEmail)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUserNotFound
@@ -43,7 +43,7 @@ func (service *notificationService) GetUpdateRecipients(authUserId int64, sender
 		return nil, err
 	}
 	senderId := sender.Id
-	if authUserId != senderId {
+	if authUserRole == "user" && authUserId != senderId {
 		return nil, ErrNotPermitted
 	}
 

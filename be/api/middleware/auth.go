@@ -4,6 +4,7 @@ import (
 	"BE_Friends_Management/constant"
 	"context"
 	"errors"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
@@ -15,6 +16,7 @@ import (
 
 var (
 	ErrAccessTokenExpires = errors.New("access token has expired")
+	ErrNotPermitted       = errors.New("action not permitted")
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -68,8 +70,28 @@ func ValidateAccessToken() gin.HandlerFunc {
 			log.Error("Happened error when validating access token. Error: ", ErrAccessTokenExpires)
 			pkg.PanicExeption(constant.Unauthorized, ErrAccessTokenExpires.Error())
 		}
-		authUserId := claims.UserId
-		c.Set("authUserId", authUserId)
+		c.Set("authUserId", claims.UserId)
+		c.Set("authUserRole", claims.Role)
 		c.Next()
+	}
+}
+
+func RequireAnyRole(roles []string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer pkg.PanicHandler(c)
+		rawAuthUserRole, exists := c.Get("authUserRole")
+		authUserRole := fmt.Sprint(rawAuthUserRole)
+		if !exists {
+			log.Error("Happened error when validating access token. Error: ", ErrNotPermitted)
+			pkg.PanicExeption(constant.StatusForbidden, ErrNotPermitted.Error())
+		}
+		for _, role := range roles {
+			if role == authUserRole {
+				c.Next()
+				return
+			}
+		}
+		log.Error("Happened error when validating access token. Error: ", ErrNotPermitted)
+		pkg.PanicExeption(constant.StatusForbidden, ErrNotPermitted.Error())
 	}
 }

@@ -34,15 +34,15 @@ func (m *MockSubscriptionService) EXPECT() *MockSubscriptionServiceMockRecorder 
 }
 
 // CreateSubscription mocks base method.
-func (m *MockSubscriptionService) CreateSubscription(requestorEmail, targetEmail string) error {
+func (m *MockSubscriptionService) CreateSubscription(authUserId int64, requestorEmail, targetEmail string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSubscription", requestorEmail, targetEmail)
+	ret := m.ctrl.Call(m, "CreateSubscription", authUserId, requestorEmail, targetEmail)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateSubscription indicates an expected call of CreateSubscription.
-func (mr *MockSubscriptionServiceMockRecorder) CreateSubscription(requestorEmail, targetEmail interface{}) *gomock.Call {
+func (mr *MockSubscriptionServiceMockRecorder) CreateSubscription(authUserId, requestorEmail, targetEmail interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockSubscriptionService)(nil).CreateSubscription), requestorEmail, targetEmail)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockSubscriptionService)(nil).CreateSubscription), authUserId, requestorEmail, targetEmail)
 }

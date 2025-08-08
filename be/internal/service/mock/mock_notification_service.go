@@ -35,16 +35,16 @@ func (m *MockNotificationService) EXPECT() *MockNotificationServiceMockRecorder 
 }
 
 // GetUpdateRecipients mocks base method.
-func (m *MockNotificationService) GetUpdateRecipients(senderEmail, text string) ([]*entity.User, error) {
+func (m *MockNotificationService) GetUpdateRecipients(authUserId int64, authUserRole, senderEmail, text string) ([]*entity.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUpdateRecipients", senderEmail, text)
+	ret := m.ctrl.Call(m, "GetUpdateRecipients", authUserId, authUserRole, senderEmail, text)
 	ret0, _ := ret[0].([]*entity.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUpdateRecipients indicates an expected call of GetUpdateRecipients.
-func (mr *MockNotificationServiceMockRecorder) GetUpdateRecipients(senderEmail, text interface{}) *gomock.Call {
+func (mr *MockNotificationServiceMockRecorder) GetUpdateRecipients(authUserId, authUserRole, senderEmail, text interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUpdateRecipients", reflect.TypeOf((*MockNotificationService)(nil).GetUpdateRecipients), senderEmail, text)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUpdateRecipients", reflect.TypeOf((*MockNotificationService)(nil).GetUpdateRecipients), authUserId, authUserRole, senderEmail, text)
 }
