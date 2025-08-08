@@ -10,7 +10,7 @@ var (
 	ErrNotPermitted = errors.New("action not permitted")
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_notification_service.go
+//go:generate mockgen -source=interface.go -destination=../mock/mock_notification_service.go
 
 type NotificationService interface {
 	GetUpdateRecipients(authUserId int64, authUserRole string, senderEmail, text string) ([]*entity.User, error)

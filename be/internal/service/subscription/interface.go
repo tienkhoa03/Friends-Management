@@ -10,7 +10,7 @@ var (
 	ErrNotPermitted      = errors.New("action not permitted")
 )
 
-//go:generate mockgen -source=service.go -destination=../mock/mock_subscription_service.go
+//go:generate mockgen -source=interface.go -destination=../mock/mock_subscription_service.go
 
 type SubscriptionService interface {
 	CreateSubscription(authUserId int64, requestorEmail, targetEmail string) error
