@@ -92,7 +92,7 @@ func (h *AuthHandler) RefreshAccessToken(c *gin.Context) {
 		log.Error("Happened error when mapping request. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 	}
-	accessToken, err := h.service.RefreshAccessToken(request.RefreshToken)
+	newAccessToken, newRefreshToken, err := h.service.RefreshAccessToken(request.RefreshToken)
 	if err != nil {
 		log.Error("Happened error when creating new friendship. Error: ", err)
 		switch {
@@ -108,7 +108,7 @@ func (h *AuthHandler) RefreshAccessToken(c *gin.Context) {
 			pkg.PanicExeption(constant.UnknownError, "Happened error when refreshing access token.")
 		}
 	}
-	c.JSON(http.StatusOK, pkg.BuildResponseSuccessWithAccessToken(accessToken))
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessWithTokens(newAccessToken, newRefreshToken))
 }
 
 // User godoc
