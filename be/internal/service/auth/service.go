@@ -71,35 +71,54 @@ func (service *authService) Login(email, password string) (string, string, error
 	return accessToken, refreshToken, nil
 }
 
-func (service *authService) RefreshAccessToken(rawRefreshToken string) (string, error) {
+func (service *authService) RefreshAccessToken(rawRefreshToken string) (string, string, error) {
 	userToken, err := service.repo.FindByRefreshToken(rawRefreshToken)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return "", ErrInvalidRefreshToken
+		return "", "", ErrInvalidRefreshToken
 	}
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	if userToken.IsRevoked {
-		return "", ErrRefreshTokenIsRevoked
+		return "", "", ErrRefreshTokenIsRevoked
 	}
 	claims, err := utils.ParseRefreshToken(rawRefreshToken)
 	if errors.Is(err, utils.ErrInvalidRefreshToken) {
-		return "", ErrInvalidRefreshToken
+		return "", "", ErrInvalidRefreshToken
 	}
 	if errors.Is(err, utils.ErrInvalidSigningMethod) {
-		return "", ErrInvalidSigningMethod
+		return "", "", ErrInvalidSigningMethod
 	}
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	if claims.ExpiresAt.Time.Before(time.Now()) {
-		return "", ErrRefreshTokenExpires
+		return "", "", ErrRefreshTokenExpires
 	}
 	accessToken, err := utils.GenerateAccessToken(userToken.UserId, claims.Role, time.Now().Add(utils.AccessTokenExpiredTime))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return accessToken, nil
+	err = service.repo.SetRefreshTokenIsRevoked(rawRefreshToken)
+	if err != nil {
+		return "", "", err
+	}
+	refreshTokenExpiredTime := time.Now().Add(utils.RefreshTokenExpiredTime)
+	refreshToken, err := utils.GenerateRefreshToken(userToken.Id, claims.Role, refreshTokenExpiredTime)
+	if err != nil {
+		return "", "", err
+	}
+	tokenRecord := &entity.UserToken{
+		UserId:       userToken.Id,
+		RefreshToken: refreshToken,
+		ExpiresAt:    refreshTokenExpiredTime,
+		IsRevoked:    false,
+	}
+	err = service.repo.CreateToken(tokenRecord)
+	if err != nil {
+		return "", "", err
+	}
+	return accessToken, refreshToken, nil
 }
 
 func (service *authService) Logout(rawRefreshToken string) error {

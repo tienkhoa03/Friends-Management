@@ -19,6 +19,6 @@ var (
 type AuthService interface {
 	RegisterUser(email, password string) (*entity.User, error)
 	Login(email, password string) (string, string, error)
-	RefreshAccessToken(rawRefreshToken string) (string, error)
+	RefreshAccessToken(rawRefreshToken string) (string, string, error)
 	Logout(rawRefreshToken string) error
 }
