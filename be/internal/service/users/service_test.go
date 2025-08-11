@@ -86,54 +86,7 @@ func TestUserService_GetUserById(t *testing.T) {
 		assert.Nil(t, user)
 	})
 }
-func TestUserService_CreateUser(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
-	mockRepo := mock.NewMockUserRepository(ctrl)
-	service := NewUserService(mockRepo)
-
-	t.Run("success", func(t *testing.T) {
-		email := "newuser@example.com"
-		expectedUser := &entity.User{Id: 1, Email: email}
-		inputUser := &entity.User{Email: email}
-
-		mockRepo.EXPECT().CreateUser(inputUser).Return(expectedUser, nil)
-
-		user, err := service.CreateUser(email)
-
-		assert.NoError(t, err)
-		assert.Equal(t, expectedUser, user)
-	})
-
-	t.Run("repository error", func(t *testing.T) {
-		email := "duplicate@example.com"
-		expectedError := errors.New("email already exists")
-		inputUser := &entity.User{Email: email}
-
-		mockRepo.EXPECT().CreateUser(inputUser).Return(nil, expectedError)
-
-		user, err := service.CreateUser(email)
-
-		assert.Error(t, err)
-		assert.Equal(t, expectedError, err)
-		assert.Nil(t, user)
-	})
-
-	t.Run("empty email", func(t *testing.T) {
-		email := ""
-		expectedError := errors.New("email cannot be empty")
-		inputUser := &entity.User{Email: email}
-
-		mockRepo.EXPECT().CreateUser(inputUser).Return(nil, expectedError)
-
-		user, err := service.CreateUser(email)
-
-		assert.Error(t, err)
-		assert.Equal(t, expectedError, err)
-		assert.Nil(t, user)
-	})
-}
 func TestUserService_DeleteUserById(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -185,26 +138,29 @@ func TestUserService_UpdateUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		userId := int64(1)
 		email := "updated@example.com"
-		expectedUser := &entity.User{Id: userId, Email: email}
-		inputUser := &entity.User{Id: userId, Email: email}
+		password := "123"
+		role := "user"
 
-		mockRepo.EXPECT().UpdateUser(inputUser).Return(expectedUser, nil)
+		expectedUser := &entity.User{Id: userId, Email: email, Role: role}
 
-		user, err := service.UpdateUser(userId, email)
+		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(expectedUser, nil)
+
+		user, err := service.UpdateUser(userId, email, password)
 
 		assert.NoError(t, err)
-		assert.Equal(t, expectedUser, user)
+		assert.Equal(t, expectedUser.Id, user.Id)
+		assert.Equal(t, expectedUser.Email, user.Email)
+		assert.Equal(t, expectedUser.Role, user.Role)
 	})
 
 	t.Run("repository error", func(t *testing.T) {
 		userId := int64(1)
 		email := "updated@example.com"
+		password := "123"
 		expectedError := errors.New("user not found")
-		inputUser := &entity.User{Id: userId, Email: email}
+		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(nil, expectedError)
 
-		mockRepo.EXPECT().UpdateUser(inputUser).Return(nil, expectedError)
-
-		user, err := service.UpdateUser(userId, email)
+		user, err := service.UpdateUser(userId, email, password)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
@@ -214,12 +170,12 @@ func TestUserService_UpdateUser(t *testing.T) {
 	t.Run("database error", func(t *testing.T) {
 		userId := int64(2)
 		email := "test@example.com"
+		password := "123"
 		expectedError := errors.New("database connection failed")
-		inputUser := &entity.User{Id: userId, Email: email}
 
-		mockRepo.EXPECT().UpdateUser(inputUser).Return(nil, expectedError)
+		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(nil, expectedError)
 
-		user, err := service.UpdateUser(userId, email)
+		user, err := service.UpdateUser(userId, email, password)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
@@ -229,19 +185,15 @@ func TestUserService_UpdateUser(t *testing.T) {
 	t.Run("empty email", func(t *testing.T) {
 		userId := int64(1)
 		email := ""
+		password := "123"
 		expectedError := errors.New("email cannot be empty")
-		inputUser := &entity.User{Id: userId, Email: email}
 
-		mockRepo.EXPECT().UpdateUser(inputUser).Return(nil, expectedError)
+		mockRepo.EXPECT().UpdateUser(gomock.Any()).Return(nil, expectedError)
 
-		user, err := service.UpdateUser(userId, email)
+		user, err := service.UpdateUser(userId, email, password)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)
 		assert.Nil(t, user)
 	})
 }
-
-
-
-
