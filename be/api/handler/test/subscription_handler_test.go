@@ -20,8 +20,8 @@ type MockSubscriptionService struct {
 	mock.Mock
 }
 
-func (m *MockSubscriptionService) CreateSubscription(requestor, target string) error {
-	args := m.Called(requestor, target)
+func (m *MockSubscriptionService) CreateSubscription(authUserId int64, requestor, target string) error {
+	args := m.Called(authUserId, requestor, target)
 	return args.Error(0)
 }
 
@@ -30,12 +30,14 @@ func TestSubscriptionHandler_CreateSubscription(t *testing.T) {
 
 	tests := []struct {
 		name         string
+		authUserId   int64
 		requestBody  interface{}
 		serviceError error
 		expectedCode int
 	}{
 		{
-			name: "Success",
+			name:       "Success",
+			authUserId: 1,
 			requestBody: dto.CreateSubscriptionRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -45,12 +47,14 @@ func TestSubscriptionHandler_CreateSubscription(t *testing.T) {
 		},
 		{
 			name:         "InvalidJSON",
+			authUserId:   1,
 			requestBody:  "invalid json",
 			serviceError: nil,
 			expectedCode: http.StatusBadRequest,
 		},
 		{
-			name: "InvalidRequest",
+			name:       "InvalidRequest",
+			authUserId: 1,
 			requestBody: dto.CreateSubscriptionRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -59,7 +63,8 @@ func TestSubscriptionHandler_CreateSubscription(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 		{
-			name: "UserNotFound",
+			name:       "UserNotFound",
+			authUserId: 1,
 			requestBody: dto.CreateSubscriptionRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -68,7 +73,8 @@ func TestSubscriptionHandler_CreateSubscription(t *testing.T) {
 			expectedCode: http.StatusNotFound,
 		},
 		{
-			name: "AlreadySubscribed",
+			name:       "AlreadySubscribed",
+			authUserId: 1,
 			requestBody: dto.CreateSubscriptionRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -77,7 +83,8 @@ func TestSubscriptionHandler_CreateSubscription(t *testing.T) {
 			expectedCode: http.StatusConflict,
 		},
 		{
-			name: "UnknownError",
+			name:       "UnknownError",
+			authUserId: 1,
 			requestBody: dto.CreateSubscriptionRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -94,7 +101,7 @@ func TestSubscriptionHandler_CreateSubscription(t *testing.T) {
 
 			var jsonData []byte
 			if request, ok := tt.requestBody.(dto.CreateSubscriptionRequest); ok {
-				mockService.On("CreateSubscription", request.Requestor, request.Target).Return(tt.serviceError)
+				mockService.On("CreateSubscription", tt.authUserId, request.Requestor, request.Target).Return(tt.serviceError)
 				jsonData, _ = json.Marshal(request)
 			} else {
 				jsonData = []byte(tt.requestBody.(string))
@@ -106,6 +113,8 @@ func TestSubscriptionHandler_CreateSubscription(t *testing.T) {
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
 			c.Request = req
+			c.Set("authUserId", 1)
+			c.Set("authUserRole", "user")
 
 			handler.CreateSubscription(c)
 

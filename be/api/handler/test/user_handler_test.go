@@ -30,18 +30,13 @@ func (m *MockUserService) GetUserById(id int64) (*entity.User, error) {
 	return args.Get(0).(*entity.User), args.Error(1)
 }
 
-func (m *MockUserService) CreateUser(email string) (*entity.User, error) {
-	args := m.Called(email)
-	return args.Get(0).(*entity.User), args.Error(1)
-}
-
 func (m *MockUserService) DeleteUserById(id int64) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
 
-func (m *MockUserService) UpdateUser(id int64, email string) (*entity.User, error) {
-	args := m.Called(id, email)
+func (m *MockUserService) UpdateUser(id int64, email string, password string) (*entity.User, error) {
+	args := m.Called(id, email, password)
 	return args.Get(0).(*entity.User), args.Error(1)
 }
 
@@ -288,152 +283,7 @@ func TestUserHandler_GetUserById(t *testing.T) {
 		})
 	}
 }
-func TestUserHandler_CreateUser(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 
-	tests := []struct {
-		name           string
-		email          string
-		setupMock      func(*MockUserService)
-		expectedStatus int
-		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
-	}{
-		{
-			name:  "Success - valid email",
-			email: "user@example.com",
-			setupMock: func(m *MockUserService) {
-				user := &entity.User{
-					Id:        1,
-					Email:     "user@example.com",
-					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
-				}
-				m.On("CreateUser", "user@example.com").Return(user, nil)
-			},
-			expectedStatus: http.StatusOK,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, constant.Success.GetResponseMessage(), response["message"])
-				assert.NotNil(t, response["data"])
-
-				data := response["data"].(map[string]interface{})
-				assert.Equal(t, float64(1), data["id"])
-				assert.Equal(t, "user@example.com", data["email"])
-			},
-		},
-		{
-			name:  "Success - empty email",
-			email: "",
-			setupMock: func(m *MockUserService) {
-				user := &entity.User{
-					Id:        2,
-					Email:     "",
-					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
-				}
-				m.On("CreateUser", "").Return(user, nil)
-			},
-			expectedStatus: http.StatusOK,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, constant.Success.GetResponseMessage(), response["message"])
-				assert.NotNil(t, response["data"])
-			},
-		},
-		{
-			name:  "Success - email with special characters",
-			email: "user+test@example.com",
-			setupMock: func(m *MockUserService) {
-				user := &entity.User{
-					Id:        3,
-					Email:     "user+test@example.com",
-					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
-				}
-				m.On("CreateUser", "user+test@example.com").Return(user, nil)
-			},
-			expectedStatus: http.StatusOK,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, constant.Success.GetResponseMessage(), response["message"])
-				assert.NotNil(t, response["data"])
-
-				data := response["data"].(map[string]interface{})
-				assert.Equal(t, "user+test@example.com", data["email"])
-			},
-		},
-		{
-			name:  "Service returns duplicate email error",
-			email: "duplicate@example.com",
-			setupMock: func(m *MockUserService) {
-				m.On("CreateUser", "duplicate@example.com").Return((*entity.User)(nil), errors.New("email already exists"))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name:  "Service returns database error",
-			email: "user@example.com",
-			setupMock: func(m *MockUserService) {
-				m.On("CreateUser", "user@example.com").Return((*entity.User)(nil), errors.New("database connection failed"))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name:  "Service returns validation error",
-			email: "invalid-email",
-			setupMock: func(m *MockUserService) {
-				m.On("CreateUser", "invalid-email").Return((*entity.User)(nil), errors.New("invalid email format"))
-			},
-			expectedStatus: http.StatusInternalServerError,
-		},
-		{
-			name:  "Success - very long email",
-			email: "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com",
-			setupMock: func(m *MockUserService) {
-				user := &entity.User{
-					Id:        4,
-					Email:     "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com",
-					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
-				}
-				m.On("CreateUser", "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com").Return(user, nil)
-			},
-			expectedStatus: http.StatusOK,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, constant.Success.GetResponseMessage(), response["message"])
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mockService := new(MockUserService)
-			userHandler := handler.NewUserHandler(mockService)
-
-			tt.setupMock(mockService)
-
-			w := httptest.NewRecorder()
-			c, _ := gin.CreateTestContext(w)
-			c.Request = httptest.NewRequest("POST", "/api/users", nil)
-			c.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-			c.Request.PostForm = map[string][]string{
-				"email": {tt.email},
-			}
-
-			userHandler.CreateUser(c)
-			assert.Equal(t, tt.expectedStatus, w.Code)
-			if tt.checkResponse != nil {
-				tt.checkResponse(t, w)
-			}
-			mockService.AssertExpectations(t)
-		})
-	}
-}
 func TestUserHandler_DeleteUserById(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -551,21 +401,24 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		name           string
 		userID         string
 		email          string
+		password       string
 		setupMock      func(*MockUserService)
 		expectedStatus int
 		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
 	}{
 		{
-			name:   "Success - valid user ID and email",
-			userID: "1",
-			email:  "updated@example.com",
+			name:     "Success - valid user information",
+			userID:   "1",
+			email:    "updated@example.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
 				user := &entity.User{
 					Id:        1,
 					Email:     "updated@example.com",
+					Password:  "123",
 					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
 				}
-				m.On("UpdateUser", int64(1), "updated@example.com").Return(user, nil)
+				m.On("UpdateUser", int64(1), "updated@example.com", "123").Return(user, nil)
 			},
 			expectedStatus: http.StatusOK,
 			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -584,6 +437,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			name:           "Invalid user ID - non-numeric",
 			userID:         "abc",
 			email:          "user@example.com",
+			password:       "123",
 			setupMock:      func(m *MockUserService) {},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -591,6 +445,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			name:           "Invalid user ID - empty string",
 			userID:         "",
 			email:          "user@example.com",
+			password:       "123",
 			setupMock:      func(m *MockUserService) {},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -598,6 +453,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			name:           "Invalid user ID - special characters",
 			userID:         "1@#",
 			email:          "user@example.com",
+			password:       "123",
 			setupMock:      func(m *MockUserService) {},
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -605,41 +461,24 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			name:           "Invalid user ID - decimal number",
 			userID:         "1.5",
 			email:          "user@example.com",
+			password:       "123",
 			setupMock:      func(m *MockUserService) {},
 			expectedStatus: http.StatusBadRequest,
 		},
+
 		{
-			name:   "Success - empty email",
-			userID: "1",
-			email:  "",
-			setupMock: func(m *MockUserService) {
-				user := &entity.User{
-					Id:        1,
-					Email:     "",
-					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
-				}
-				m.On("UpdateUser", int64(1), "").Return(user, nil)
-			},
-			expectedStatus: http.StatusOK,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, constant.Success.GetResponseMessage(), response["message"])
-				assert.NotNil(t, response["data"])
-			},
-		},
-		{
-			name:   "Success - email with special characters",
-			userID: "1",
-			email:  "user+test@example.com",
+			name:     "Success - email with special characters",
+			userID:   "1",
+			email:    "user+test@example.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
 				user := &entity.User{
 					Id:        1,
 					Email:     "user+test@example.com",
+					Password:  "123",
 					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
 				}
-				m.On("UpdateUser", int64(1), "user+test@example.com").Return(user, nil)
+				m.On("UpdateUser", int64(1), "user+test@example.com", "123").Return(user, nil)
 			},
 			expectedStatus: http.StatusOK,
 			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -654,43 +493,48 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			},
 		},
 		{
-			name:   "Service returns user not found error",
-			userID: "999",
-			email:  "user@example.com",
+			name:     "Service returns user not found error",
+			userID:   "999",
+			email:    "user@example.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
-				m.On("UpdateUser", int64(999), "user@example.com").Return((*entity.User)(nil), errors.New("user not found"))
+				m.On("UpdateUser", int64(999), "user@example.com", "123").Return((*entity.User)(nil), errors.New("user not found"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
-			name:   "Service returns database error",
-			userID: "1",
-			email:  "user@example.com",
+			name:     "Service returns database error",
+			userID:   "1",
+			email:    "user@example.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
-				m.On("UpdateUser", int64(1), "user@example.com").Return((*entity.User)(nil), errors.New("database connection failed"))
+				m.On("UpdateUser", int64(1), "user@example.com", "123").Return((*entity.User)(nil), errors.New("database connection failed"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
-			name:   "Service returns duplicate email error",
-			userID: "1",
-			email:  "duplicate@example.com",
+			name:     "Service returns duplicate email error",
+			userID:   "1",
+			email:    "duplicate@example.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
-				m.On("UpdateUser", int64(1), "duplicate@example.com").Return((*entity.User)(nil), errors.New("email already exists"))
+				m.On("UpdateUser", int64(1), "duplicate@example.com", "123").Return((*entity.User)(nil), errors.New("email already exists"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
-			name:   "Success - large user ID",
-			userID: "9223372036854775807",
-			email:  "user@example.com",
+			name:     "Success - large user ID",
+			userID:   "9223372036854775807",
+			email:    "user@example.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
 				user := &entity.User{
 					Id:        9223372036854775807,
 					Email:     "user@example.com",
+					Password:  "123",
 					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
 				}
-				m.On("UpdateUser", int64(9223372036854775807), "user@example.com").Return(user, nil)
+				m.On("UpdateUser", int64(9223372036854775807), "user@example.com", "123").Return(user, nil)
 			},
 			expectedStatus: http.StatusOK,
 			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -705,20 +549,23 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			name:           "Invalid user ID - overflow",
 			userID:         "9223372036854775808",
 			email:          "user@example.com",
+			password:       "123",
 			setupMock:      func(m *MockUserService) {},
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
-			name:   "Success - negative user ID",
-			userID: "-1",
-			email:  "user@example.com",
+			name:     "Success - negative user ID",
+			userID:   "-1",
+			email:    "user@example.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
 				user := &entity.User{
 					Id:        -1,
 					Email:     "user@example.com",
+					Password:  "123",
 					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
 				}
-				m.On("UpdateUser", int64(-1), "user@example.com").Return(user, nil)
+				m.On("UpdateUser", int64(-1), "user@example.com", "123").Return(user, nil)
 			},
 			expectedStatus: http.StatusOK,
 			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -729,25 +576,28 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			},
 		},
 		{
-			name:   "Service returns validation error",
-			userID: "1",
-			email:  "invalid-email",
+			name:     "Service returns validation error",
+			userID:   "1",
+			email:    "invalid-email",
+			password: "123",
 			setupMock: func(m *MockUserService) {
-				m.On("UpdateUser", int64(1), "invalid-email").Return((*entity.User)(nil), errors.New("invalid email format"))
+				m.On("UpdateUser", int64(1), "invalid-email", "123").Return((*entity.User)(nil), errors.New("invalid email format"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
-			name:   "Success - very long email",
-			userID: "1",
-			email:  "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com",
+			name:     "Success - very long email",
+			userID:   "1",
+			email:    "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com",
+			password: "123",
 			setupMock: func(m *MockUserService) {
 				user := &entity.User{
 					Id:        1,
 					Email:     "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com",
+					Password:  "123",
 					CreatedAt: time.Date(2025, 8, 1, 10, 0, 0, 0, time.UTC),
 				}
-				m.On("UpdateUser", int64(1), "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com").Return(user, nil)
+				m.On("UpdateUser", int64(1), "verylongusernamethatexceedsnormallimits@verylongdomainnamethatisunusuallylongbutvalid.com", "123").Return(user, nil)
 			},
 			expectedStatus: http.StatusOK,
 			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -771,7 +621,8 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 			c.Request = httptest.NewRequest("PUT", "/api/users/"+tt.userID, nil)
 			c.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			c.Request.PostForm = map[string][]string{
-				"email": {tt.email},
+				"email":    {tt.email},
+				"password": {tt.password},
 			}
 			c.Params = gin.Params{
 				{Key: "id", Value: tt.userID},

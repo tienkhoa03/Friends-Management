@@ -20,8 +20,8 @@ type MockBlockRelationshipService struct {
 	mock.Mock
 }
 
-func (m *MockBlockRelationshipService) CreateBlockRelationship(requestor, target string) error {
-	args := m.Called(requestor, target) 
+func (m *MockBlockRelationshipService) CreateBlockRelationship(authUserId int64, requestor, target string) error {
+	args := m.Called(authUserId, requestor, target)
 	return args.Error(0)
 }
 
@@ -30,13 +30,15 @@ func TestCreateBlockRelationship(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		authUserId     int64
 		requestBody    interface{}
 		serviceError   error
 		expectedStatus int
 		setupMock      func(*MockBlockRelationshipService)
 	}{
 		{
-			name: "Success",
+			name:       "Success",
+			authUserId: 1,
 			requestBody: dto.CreateBlockRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -44,11 +46,12 @@ func TestCreateBlockRelationship(t *testing.T) {
 			serviceError:   nil,
 			expectedStatus: http.StatusOK,
 			setupMock: func(m *MockBlockRelationshipService) {
-				m.On("CreateBlockRelationship", "user1@example.com", "user2@example.com").Return(nil)
+				m.On("CreateBlockRelationship", int64(1), "user1@example.com", "user2@example.com").Return(nil)
 			},
 		},
 		{
 			name:           "Invalid JSON",
+			authUserId:     1,
 			requestBody:    "invalid json",
 			serviceError:   nil,
 			expectedStatus: http.StatusBadRequest,
@@ -57,7 +60,8 @@ func TestCreateBlockRelationship(t *testing.T) {
 			},
 		},
 		{
-			name: "Service Error - Invalid Request",
+			name:       "Service Error - Invalid Request",
+			authUserId: 1,
 			requestBody: dto.CreateBlockRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -65,11 +69,12 @@ func TestCreateBlockRelationship(t *testing.T) {
 			serviceError:   service.ErrInvalidRequest,
 			expectedStatus: http.StatusBadRequest,
 			setupMock: func(m *MockBlockRelationshipService) {
-				m.On("CreateBlockRelationship", "user1@example.com", "user2@example.com").Return(service.ErrInvalidRequest)
+				m.On("CreateBlockRelationship", int64(1), "user1@example.com", "user2@example.com").Return(service.ErrInvalidRequest)
 			},
 		},
 		{
-			name: "Service Error - User Not Found",
+			name:       "Service Error - User Not Found",
+			authUserId: 1,
 			requestBody: dto.CreateBlockRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -77,11 +82,12 @@ func TestCreateBlockRelationship(t *testing.T) {
 			serviceError:   service.ErrUserNotFound,
 			expectedStatus: http.StatusNotFound,
 			setupMock: func(m *MockBlockRelationshipService) {
-				m.On("CreateBlockRelationship", "user1@example.com", "user2@example.com").Return(service.ErrUserNotFound)
+				m.On("CreateBlockRelationship", int64(1), "user1@example.com", "user2@example.com").Return(service.ErrUserNotFound)
 			},
 		},
 		{
-			name: "Service Error - Already Blocked",
+			name:       "Service Error - Already Blocked",
+			authUserId: 1,
 			requestBody: dto.CreateBlockRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -89,11 +95,12 @@ func TestCreateBlockRelationship(t *testing.T) {
 			serviceError:   service.ErrAlreadyBlocked,
 			expectedStatus: http.StatusConflict,
 			setupMock: func(m *MockBlockRelationshipService) {
-				m.On("CreateBlockRelationship", "user1@example.com", "user2@example.com").Return(service.ErrAlreadyBlocked)
+				m.On("CreateBlockRelationship", int64(1), "user1@example.com", "user2@example.com").Return(service.ErrAlreadyBlocked)
 			},
 		},
 		{
-			name: "Service Error - Not Subscribed",
+			name:       "Service Error - Not Subscribed",
+			authUserId: 1,
 			requestBody: dto.CreateBlockRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -101,11 +108,12 @@ func TestCreateBlockRelationship(t *testing.T) {
 			serviceError:   service.ErrNotSubscribed,
 			expectedStatus: http.StatusForbidden,
 			setupMock: func(m *MockBlockRelationshipService) {
-				m.On("CreateBlockRelationship", "user1@example.com", "user2@example.com").Return(service.ErrNotSubscribed)
+				m.On("CreateBlockRelationship", int64(1), "user1@example.com", "user2@example.com").Return(service.ErrNotSubscribed)
 			},
 		},
 		{
-			name: "Service Error - Unknown Error",
+			name:       "Service Error - Unknown Error",
+			authUserId: 1,
 			requestBody: dto.CreateBlockRequest{
 				Requestor: "user1@example.com",
 				Target:    "user2@example.com",
@@ -113,7 +121,7 @@ func TestCreateBlockRelationship(t *testing.T) {
 			serviceError:   errors.New("unknown error"),
 			expectedStatus: http.StatusInternalServerError,
 			setupMock: func(m *MockBlockRelationshipService) {
-				m.On("CreateBlockRelationship", "user1@example.com", "user2@example.com").Return(errors.New("unknown error"))
+				m.On("CreateBlockRelationship", int64(1), "user1@example.com", "user2@example.com").Return(errors.New("unknown error"))
 			},
 		},
 	}
@@ -139,7 +147,7 @@ func TestCreateBlockRelationship(t *testing.T) {
 
 			c.Request, _ = http.NewRequest("POST", "/api/block", bytes.NewBuffer(jsonBody))
 			c.Request.Header.Set("Content-Type", "application/json")
-
+			c.Set("authUserId", 1)
 			handler.CreateBlockRelationship(c)
 
 			assert.Equal(t, tt.expectedStatus, w.Code)

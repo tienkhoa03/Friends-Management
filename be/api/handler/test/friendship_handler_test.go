@@ -20,16 +20,16 @@ type MockFriendshipService struct {
 	mock.Mock
 }
 
-func (m *MockFriendshipService) CreateFriendship(email1, email2 string) error {
-	args := m.Called(email1, email2)
+func (m *MockFriendshipService) CreateFriendship(authUserId int64, email1, email2 string) error {
+	args := m.Called(authUserId, email1, email2)
 	return args.Error(0)
 }
-func (m *MockFriendshipService) RetrieveFriendsList(email string) ([]*entity.User, error) {
-	args := m.Called(email)
+func (m *MockFriendshipService) RetrieveFriendsList(authUserId int64, authUserRole string, email string) ([]*entity.User, error) {
+	args := m.Called(authUserId, authUserRole, email)
 	return args.Get(0).([]*entity.User), args.Error(1)
 }
-func (m *MockFriendshipService) RetrieveCommonFriends(email1, email2 string) ([]*entity.User, error) {
-	args := m.Called(email1, email2)
+func (m *MockFriendshipService) RetrieveCommonFriends(authUserId int64, authUserRole string, email1, email2 string) ([]*entity.User, error) {
+	args := m.Called(authUserId, authUserRole, email1, email2)
 	return args.Get(0).([]*entity.User), args.Error(1)
 }
 func (m *MockFriendshipService) CountFriends(users []*entity.User) int64 {
@@ -42,70 +42,77 @@ func TestFriendshipHandler_CreateFriendship(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		authUserId     int64
 		requestBody    interface{}
 		serviceError   error
 		expectedStatus int
 		setupMock      func(*MockFriendshipService)
 	}{
 		{
-			name: "Success",
+			name:       "Success",
+			authUserId: 1,
 			requestBody: dto.CreateFriendshipRequest{
 				Friends: []string{"andy@example.com", "john@example.com"},
 			},
 			serviceError:   nil,
 			expectedStatus: http.StatusOK,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("CreateFriendship", "andy@example.com", "john@example.com").Return(nil)
+				m.On("CreateFriendship", int64(1), "andy@example.com", "john@example.com").Return(nil)
 			},
 		},
 		{
 			name:           "Invalid JSON request",
+			authUserId:     1,
 			requestBody:    "invalid json",
 			expectedStatus: http.StatusBadRequest,
 			setupMock:      func(m *MockFriendshipService) {},
 		},
 		{
-			name: "Service returns ErrInvalidRequest",
+			name:       "Service returns ErrInvalidRequest",
+			authUserId: 1,
 			requestBody: dto.CreateFriendshipRequest{
 				Friends: []string{"andy@example.com", "john@example.com"},
 			},
 			serviceError:   service.ErrInvalidRequest,
 			expectedStatus: http.StatusBadRequest,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("CreateFriendship", "andy@example.com", "john@example.com").Return(service.ErrInvalidRequest)
+				m.On("CreateFriendship", int64(1), "andy@example.com", "john@example.com").Return(service.ErrInvalidRequest)
 			},
 		},
 		{
-			name: "Service returns ErrUserNotFound",
+			name:       "Service returns ErrUserNotFound",
+			authUserId: 1,
 			requestBody: dto.CreateFriendshipRequest{
 				Friends: []string{"andy@example.com", "john@example.com"},
 			},
 			serviceError:   service.ErrUserNotFound,
 			expectedStatus: http.StatusNotFound,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("CreateFriendship", "andy@example.com", "john@example.com").Return(service.ErrUserNotFound)
+				m.On("CreateFriendship", int64(1), "andy@example.com", "john@example.com").Return(service.ErrUserNotFound)
 			},
 		},
 		{
-			name: "Service returns ErrAlreadyFriend",
+			name:       "Service returns ErrAlreadyFriend",
+			authUserId: 1,
 			requestBody: dto.CreateFriendshipRequest{
 				Friends: []string{"andy@example.com", "john@example.com"},
 			},
 			serviceError:   service.ErrAlreadyFriend,
 			expectedStatus: http.StatusConflict,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("CreateFriendship", "andy@example.com", "john@example.com").Return(service.ErrAlreadyFriend)
+				m.On("CreateFriendship", int64(1), "andy@example.com", "john@example.com").Return(service.ErrAlreadyFriend)
 			},
 		},
 		{
-			name: "Service returns unknown error",
+			name:       "Service returns unknown error",
+			authUserId: 1,
 			requestBody: dto.CreateFriendshipRequest{
 				Friends: []string{"andy@example.com", "john@example.com"},
 			},
 			serviceError:   assert.AnError,
 			expectedStatus: http.StatusInternalServerError,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("CreateFriendship", "andy@example.com", "john@example.com").Return(assert.AnError)
+				m.On("CreateFriendship", int64(1), "andy@example.com", "john@example.com").Return(assert.AnError)
 			},
 		},
 	}
@@ -129,7 +136,7 @@ func TestFriendshipHandler_CreateFriendship(t *testing.T) {
 
 			c.Request = httptest.NewRequest(http.MethodPost, "/api/friendship", bytes.NewBuffer(reqBody))
 			c.Request.Header.Set("Content-Type", "application/json")
-
+			c.Set("authUserId", 1)
 			handler.CreateFriendship(c)
 
 			assert.Equal(t, tt.expectedStatus, w.Code)
@@ -143,14 +150,18 @@ func TestFriendshipHandler_RetrieveFriendsList(t *testing.T) {
 	tests := []struct {
 		name           string
 		emailParam     string
+		authUserId     int64
+		authUserRole   string
 		serviceUsers   []*entity.User
 		serviceError   error
 		expectedStatus int
 		setupMock      func(*MockFriendshipService)
 	}{
 		{
-			name:       "Success",
-			emailParam: "andy@example.com",
+			name:         "Success",
+			authUserId:   1,
+			authUserRole: "user",
+			emailParam:   "andy@example.com",
 			serviceUsers: []*entity.User{
 				{Email: "john@example.com"},
 				{Email: "jane@example.com"},
@@ -162,34 +173,40 @@ func TestFriendshipHandler_RetrieveFriendsList(t *testing.T) {
 					{Email: "john@example.com"},
 					{Email: "jane@example.com"},
 				}
-				m.On("RetrieveFriendsList", "andy@example.com").Return(users, nil)
+				m.On("RetrieveFriendsList", int64(1), "user", "andy@example.com").Return(users, nil)
 				m.On("CountFriends", users).Return(2)
 			},
 		},
 		{
 			name:           "Missing email parameter",
+			authUserId:     1,
+			authUserRole:   "user",
 			emailParam:     "",
 			expectedStatus: http.StatusBadRequest,
 			setupMock:      func(m *MockFriendshipService) {},
 		},
 		{
 			name:           "Service returns ErrUserNotFound",
+			authUserId:     1,
+			authUserRole:   "user",
 			emailParam:     "nonexistent@example.com",
 			serviceUsers:   []*entity.User{},
 			serviceError:   service.ErrUserNotFound,
 			expectedStatus: http.StatusNotFound,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("RetrieveFriendsList", "nonexistent@example.com").Return([]*entity.User{}, service.ErrUserNotFound)
+				m.On("RetrieveFriendsList", int64(1), "user", "nonexistent@example.com").Return([]*entity.User{}, service.ErrUserNotFound)
 			},
 		},
 		{
 			name:           "Service returns unknown error",
+			authUserId:     1,
+			authUserRole:   "user",
 			emailParam:     "andy@example.com",
 			serviceUsers:   []*entity.User{},
 			serviceError:   assert.AnError,
 			expectedStatus: http.StatusInternalServerError,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("RetrieveFriendsList", "andy@example.com").Return([]*entity.User{}, assert.AnError)
+				m.On("RetrieveFriendsList", int64(1), "user", "andy@example.com").Return([]*entity.User{}, assert.AnError)
 			},
 		},
 		{
@@ -200,7 +217,7 @@ func TestFriendshipHandler_RetrieveFriendsList(t *testing.T) {
 			expectedStatus: http.StatusOK,
 			setupMock: func(m *MockFriendshipService) {
 				users := []*entity.User{}
-				m.On("RetrieveFriendsList", "lonely@example.com").Return(users, nil)
+				m.On("RetrieveFriendsList", int64(1), "user", "lonely@example.com").Return(users, nil)
 				m.On("CountFriends", users).Return(0)
 			},
 		},
@@ -223,7 +240,8 @@ func TestFriendshipHandler_RetrieveFriendsList(t *testing.T) {
 				req.URL.RawQuery = q.Encode()
 			}
 			c.Request = req
-
+			c.Set("authUserId", 1)
+			c.Set("authUserRole", "user")
 			handler.RetrieveFriendsList(c)
 
 			assert.Equal(t, tt.expectedStatus, w.Code)
@@ -237,6 +255,8 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		authUserId     int64
+		authUserRole   string
 		email1Param    string
 		email2Param    string
 		serviceUsers   []*entity.User
@@ -245,9 +265,11 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 		setupMock      func(*MockFriendshipService)
 	}{
 		{
-			name:        "Success",
-			email1Param: "andy@example.com",
-			email2Param: "john@example.com",
+			name:         "Success",
+			authUserId:   1,
+			authUserRole: "user",
+			email1Param:  "andy@example.com",
+			email2Param:  "john@example.com",
 			serviceUsers: []*entity.User{
 				{Email: "jane@example.com"},
 				{Email: "bob@example.com"},
@@ -259,12 +281,14 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 					{Email: "jane@example.com"},
 					{Email: "bob@example.com"},
 				}
-				m.On("RetrieveCommonFriends", "andy@example.com", "john@example.com").Return(users, nil)
+				m.On("RetrieveCommonFriends", int64(1), "user", "andy@example.com", "john@example.com").Return(users, nil)
 				m.On("CountFriends", users).Return(2)
 			},
 		},
 		{
 			name:           "Missing email1 parameter",
+			authUserId:     1,
+			authUserRole:   "user",
 			email1Param:    "",
 			email2Param:    "john@example.com",
 			expectedStatus: http.StatusBadRequest,
@@ -272,6 +296,8 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 		},
 		{
 			name:           "Missing email2 parameter",
+			authUserId:     1,
+			authUserRole:   "user",
 			email1Param:    "andy@example.com",
 			email2Param:    "",
 			expectedStatus: http.StatusBadRequest,
@@ -279,6 +305,8 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 		},
 		{
 			name:           "Missing both email parameters",
+			authUserId:     1,
+			authUserRole:   "user",
 			email1Param:    "",
 			email2Param:    "",
 			expectedStatus: http.StatusBadRequest,
@@ -286,39 +314,47 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 		},
 		{
 			name:           "Service returns ErrInvalidRequest",
+			authUserId:     1,
+			authUserRole:   "user",
 			email1Param:    "andy@example.com",
 			email2Param:    "john@example.com",
 			serviceUsers:   []*entity.User{},
 			serviceError:   service.ErrInvalidRequest,
 			expectedStatus: http.StatusBadRequest,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("RetrieveCommonFriends", "andy@example.com", "john@example.com").Return([]*entity.User{}, service.ErrInvalidRequest)
+				m.On("RetrieveCommonFriends", int64(1), "user", "andy@example.com", "john@example.com").Return([]*entity.User{}, service.ErrInvalidRequest)
 			},
 		},
 		{
 			name:           "Service returns ErrUserNotFound",
+			authUserId:     1,
+			authUserRole:   "user",
 			email1Param:    "nonexistent@example.com",
 			email2Param:    "john@example.com",
 			serviceUsers:   []*entity.User{},
 			serviceError:   service.ErrUserNotFound,
 			expectedStatus: http.StatusNotFound,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("RetrieveCommonFriends", "nonexistent@example.com", "john@example.com").Return([]*entity.User{}, service.ErrUserNotFound)
+				m.On("RetrieveCommonFriends", int64(1), "user", "nonexistent@example.com", "john@example.com").Return([]*entity.User{}, service.ErrUserNotFound)
 			},
 		},
 		{
 			name:           "Service returns unknown error",
+			authUserId:     1,
+			authUserRole:   "user",
 			email1Param:    "andy@example.com",
 			email2Param:    "john@example.com",
 			serviceUsers:   []*entity.User{},
 			serviceError:   assert.AnError,
 			expectedStatus: http.StatusInternalServerError,
 			setupMock: func(m *MockFriendshipService) {
-				m.On("RetrieveCommonFriends", "andy@example.com", "john@example.com").Return([]*entity.User{}, assert.AnError)
+				m.On("RetrieveCommonFriends", int64(1), "user", "andy@example.com", "john@example.com").Return([]*entity.User{}, assert.AnError)
 			},
 		},
 		{
 			name:           "Success with no common friends",
+			authUserId:     1,
+			authUserRole:   "user",
 			email1Param:    "andy@example.com",
 			email2Param:    "john@example.com",
 			serviceUsers:   []*entity.User{},
@@ -326,7 +362,7 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 			expectedStatus: http.StatusOK,
 			setupMock: func(m *MockFriendshipService) {
 				users := []*entity.User{}
-				m.On("RetrieveCommonFriends", "andy@example.com", "john@example.com").Return(users, nil)
+				m.On("RetrieveCommonFriends", int64(1), "user", "andy@example.com", "john@example.com").Return(users, nil)
 				m.On("CountFriends", users).Return(0)
 			},
 		},
@@ -352,7 +388,8 @@ func TestFriendshipHandler_RetrieveCommonFriends(t *testing.T) {
 			}
 			req.URL.RawQuery = q.Encode()
 			c.Request = req
-
+			c.Set("authUserId", 1)
+			c.Set("authUserRole", "user")
 			handler.RetrieveCommonFriends(c)
 
 			assert.Equal(t, tt.expectedStatus, w.Code)
