@@ -4,6 +4,7 @@ import (
 	"BE_Friends_Management/constant"
 	service "BE_Friends_Management/internal/service/users"
 	"BE_Friends_Management/pkg"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -67,7 +68,12 @@ func (h *UserHandler) GetUserById(c *gin.Context) {
 	user, err := h.service.GetUserById(userId)
 	if err != nil {
 		log.Error("Happened error when getting the user by ID. Error: ", err)
-		pkg.PanicExeption(constant.UnknownError, "Happened error when getting the user by ID")
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting the user by ID")
+		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, user))
 }
@@ -97,7 +103,12 @@ func (h *UserHandler) DeleteUserById(c *gin.Context) {
 	err = h.service.DeleteUserById(userId)
 	if err != nil {
 		log.Error("Happened error when deleting a user. Error: ", err)
-		pkg.PanicExeption(constant.UnknownError, "Happened error when deleting a user")
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when deleting a user")
+		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }
@@ -131,7 +142,12 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	updatedUser, err := h.service.UpdateUser(userId, email, password)
 	if err != nil {
 		log.Error("Happened error when updating user. Error: ", err)
-		pkg.PanicExeption(constant.UnknownError, "Happened error when updating a user")
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when updating a user")
+		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, updatedUser))
 }
